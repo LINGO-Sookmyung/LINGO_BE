@@ -1,8 +1,11 @@
 package Sookmyung.Lingo.domain;
 
+import Sookmyung.Lingo.domain.enums.MemberType;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Member {
@@ -35,4 +38,10 @@ public class Member {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MemberType memberType;
+
+    // === 관계 설정 ===
+
+    // 원본 문서
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RawDocument> rawDocument = new ArrayList<>();
 }
