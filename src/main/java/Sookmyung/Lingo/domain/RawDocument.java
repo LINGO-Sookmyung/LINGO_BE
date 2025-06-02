@@ -50,8 +50,17 @@ public class RawDocument {
     private Member member;
 
     // === 관계 설정 ===
+
+    // 원본 문서 이미지
     @OneToMany(mappedBy = "rawDocument",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<RawDocumentImage> rawDocumentImages = new ArrayList<>();
+
+    // 번역된 문서
+    @OneToOne(mappedBy = "rawDocument",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private TranslatedDocument translatedDocument;
 }
