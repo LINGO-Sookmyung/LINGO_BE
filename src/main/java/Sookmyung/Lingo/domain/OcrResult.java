@@ -12,10 +12,11 @@ public class OcrResult {
     private Long id;
 
     // OCR 결과 원본 파일 경로
+    @Column(nullable = false)
     private String rawOcrPath;
 
     // OCR 결과 정리본 (텍스트 추출 후 구조화, JSON 형태)
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String structuredOcr;
 
     // === FK ===
