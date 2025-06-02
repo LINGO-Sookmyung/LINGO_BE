@@ -3,6 +3,9 @@ package Sookmyung.Lingo.domain;
 import Sookmyung.Lingo.domain.enums.*;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class RawDocument {
     @Id
@@ -43,6 +46,12 @@ public class RawDocument {
 
     // 회원
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id", nullable = false)
+    @JoinColumn(name = "member_id")
     private Member member;
+
+    // === 관계 설정 ===
+    @OneToMany(mappedBy = "rawDocument",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<RawDocumentImage> rawDocumentImages = new ArrayList<>();
 }
