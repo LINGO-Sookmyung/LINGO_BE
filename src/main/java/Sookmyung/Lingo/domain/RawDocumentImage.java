@@ -25,4 +25,14 @@ public class RawDocumentImage {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "raw_document_id")
     private RawDocument rawDocument;
+
+
+    // === 관계 설정 ===
+
+    // OCR 결과
+    @OneToOne(mappedBy = "rawDocumentImage",
+            fetch = FetchType.LAZY,
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private OcrResult ocrResult;
 }
