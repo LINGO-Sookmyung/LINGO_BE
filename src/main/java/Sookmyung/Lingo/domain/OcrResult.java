@@ -1,10 +1,12 @@
 package Sookmyung.Lingo.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 import java.util.Map;
 
 @Entity
+@Getter
 public class OcrResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,4 +27,14 @@ public class OcrResult {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "raw_document_image_id")
     private RawDocumentImage rawDocumentImage;
+
+    // === 연관관계 메서드 ===
+
+    // 문서 이미지
+    public void setRawDocumentImage(RawDocumentImage rawDocumentImage) {
+        this.rawDocumentImage = rawDocumentImage;
+        if (rawDocumentImage != null && rawDocumentImage.getOcrResult() != this) {
+            rawDocumentImage.setOcrResult(this);
+        }
+    }
 }

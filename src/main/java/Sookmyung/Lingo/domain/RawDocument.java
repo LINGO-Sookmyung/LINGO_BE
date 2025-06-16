@@ -2,11 +2,16 @@ package Sookmyung.Lingo.domain;
 
 import Sookmyung.Lingo.domain.enums.*;
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RawDocument {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,4 +68,42 @@ public class RawDocument {
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private TranslatedDocument translatedDocument;
+
+    // === 연관관계 메서드 ===
+
+    // 회원
+    public void setMember(Member member) {
+        if (this.member != null) { // 이미 연결된 경우 관계 끊음 (에러 방지)
+            this.member.getRawDocuments().remove(this);
+        }
+        this.member = member;
+        if (member != null && !member.getRawDocuments().contains(this)) {
+            member.getRawDocuments().add(this);
+        }
+    }
+
+    // 번역 문서
+    public void setTranslatedDocument(TranslatedDocument translatedDocument) {
+        this.translatedDocument = translatedDocument;
+        if (translatedDocument != null
+                && translatedDocument.getRawDocument() != this) {
+            translatedDocument.setRawDocument(this);
+        }
+    }
+
+    // 원본 문서 이미지 추가
+    public void addRawDocumentImage(RawDocumentImage image) {
+        rawDocumentImages.add(image);
+        if (image.getRawDocument() != this) {
+            image.setRawDocument(this);
+        }
+    }
+
+    // 원본 문서 이미지 삭제
+    public void removeRawDocumentImage(RawDocumentImage image) {
+        rawDocumentImages.remove(image);
+        if (image.getRawDocument() == this) {
+            image.setRawDocument(null);
+        }
+    }
 }

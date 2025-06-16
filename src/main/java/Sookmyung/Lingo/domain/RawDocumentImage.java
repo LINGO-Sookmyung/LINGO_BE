@@ -1,8 +1,10 @@
 package Sookmyung.Lingo.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
 
 @Entity
+@Getter
 public class RawDocumentImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,4 +37,25 @@ public class RawDocumentImage {
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private OcrResult ocrResult;
+
+    // === 연관관계 메서드 ===
+
+    // 원본 문서
+    public void setRawDocument(RawDocument rawDocument) {
+        if (this.rawDocument != null) {
+            this.rawDocument.getRawDocumentImages().remove(this);
+        }
+        this.rawDocument = rawDocument;
+        if (rawDocument != null && !rawDocument.getRawDocumentImages().contains(this)) {
+            rawDocument.getRawDocumentImages().add(this);
+        }
+    }
+
+    // ocr 결과
+    public void setOcrResult(OcrResult ocrResult) {
+        this.ocrResult = ocrResult;
+        if (ocrResult != null && ocrResult.getRawDocumentImage() != this) {
+            ocrResult.setRawDocumentImage(this);
+        }
+    }
 }
