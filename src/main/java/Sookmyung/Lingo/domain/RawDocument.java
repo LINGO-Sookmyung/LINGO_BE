@@ -106,4 +106,24 @@ public class RawDocument {
             image.setRawDocument(null);
         }
     }
+
+    // === 생성 메서드 ===
+    public static RawDocument createRawDocument(DocumentType type,
+                                                Long page,
+                                                Country country,
+                                                Language language,
+                                                IssuanceChannel channel,
+                                                Orientation orientation,
+                                                Member member) {
+        RawDocument doc = new RawDocument();
+        doc.documentType = type;
+        doc.totalPages = page;
+        doc.country = country;
+        doc.language = language;
+        doc.issuanceChannel = channel;
+        doc.orientation = orientation;
+        doc.setMember(member);
+
+        return doc;
+    }
 }

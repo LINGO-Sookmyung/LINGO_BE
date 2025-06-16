@@ -1,12 +1,13 @@
 package Sookmyung.Lingo.domain;
 
 import jakarta.persistence.*;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.Map;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OcrResult {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,5 +37,13 @@ public class OcrResult {
         if (rawDocumentImage != null && rawDocumentImage.getOcrResult() != this) {
             rawDocumentImage.setOcrResult(this);
         }
+    }
+
+    // === 생성자 ===
+    @Builder
+    public OcrResult(String rawOcrPath,
+                     String structuredOcr) {
+        this.rawOcrPath = rawOcrPath;
+        this.structuredOcr = structuredOcr;
     }
 }

@@ -1,10 +1,14 @@
 package Sookmyung.Lingo.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RawDocumentImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,5 +61,15 @@ public class RawDocumentImage {
         if (ocrResult != null && ocrResult.getRawDocumentImage() != this) {
             ocrResult.setRawDocumentImage(this);
         }
+    }
+
+    // === 생성자 ===
+    @Builder
+    public RawDocumentImage(String rawFilename,
+                            Long pageNumber,
+                            String rawFilePath) { // 필요한 필드만 노출
+        this.rawFilename = rawFilename;
+        this.pageNumber = pageNumber;
+        this.rawFilePath = rawFilePath;
     }
 }

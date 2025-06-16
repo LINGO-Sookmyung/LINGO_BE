@@ -1,10 +1,14 @@
 package Sookmyung.Lingo.domain;
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class TranslatedDocument {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,5 +39,12 @@ public class TranslatedDocument {
         if (rawDocument != null && rawDocument.getTranslatedDocument() != this) {
             rawDocument.setTranslatedDocument(this);
         }
+    }
+
+    // === 생성자 ===
+    @Builder
+    public TranslatedDocument(String translatedDocumentName, String translatedFilePath) {
+        this.translatedDocumentName = translatedDocumentName;
+        this.translatedFilePath = translatedFilePath;
     }
 }
