@@ -37,7 +37,7 @@ public class Member {
 
     // 전화번호
     @Column(nullable = false)
-    private String phone_num;
+    private String phoneNum;
 
     // 회원 유형
     @Column(nullable = false)
@@ -80,7 +80,7 @@ public class Member {
         member.password = password;
         member.name = name;
         member.birth = birth;
-        member.phone_num = phone_num;
+        member.phoneNum = phone_num;
         member.memberType = type;
 
         return member;
