@@ -21,7 +21,7 @@ public class SecurityConfig {
         // H2 콘솔 접근 허용
         http.authorizeHttpRequests(authz -> authz
                 .requestMatchers("/h2-console/**").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**").permitAll() // 스웨거 인증 없이 접근 허용
+                .requestMatchers("/api-docs", "/swagger-ui.html", "/api-docs/**", "/swagger-ui/**").permitAll() // 스웨거 인증 없이 접근 허용
                 .anyRequest().authenticated()  // 나머지 요청은 인증 필요
         );
 
