@@ -35,6 +35,10 @@ dependencies {
 	// Spring Security 설정
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.security:spring-security-test'
+	//swagger 설정
+	//swagger
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-ui', version: '2.5.0'
+	testImplementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webmvc-api', version: '2.5.0'
 }
 
 tasks.named('test') {

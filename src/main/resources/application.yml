@@ -18,3 +18,16 @@ spring:
 logging.level:
   org.hibernate.SQL: debug
   org.hibernate.orm.jdbc.bind: trace #스프링 부트 3.x, hibernate6
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html  # swagger UI 페이지 경로
+    enabled: true           # swagger UI 사용 여부
+    tags-sorter: alpha      # 태그 정렬 방식 (알파벳순)
+    operations-sorter: alpha  # API operation 정렬 방식 (알파벳순)
+
+  api-docs:
+    path: /api-docs         # Swagger UI가 참조할 API docs 경로
+
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
