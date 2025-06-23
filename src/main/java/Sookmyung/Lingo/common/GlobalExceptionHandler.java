@@ -3,6 +3,8 @@ package Sookmyung.Lingo.common;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -22,6 +24,32 @@ public class GlobalExceptionHandler {
         log.error("CustomException 발생: {}", e.getErrorCode(), e);
         ErrorResponse errorResponse = new ErrorResponse(e.getErrorCode());
         return ResponseEntity.status(e.getErrorCode().getHttpStatus()).body(errorResponse);
+    }
+
+    /**
+     * @Valid 유효성 검사 실패 예외 처리
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    protected ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+        log.warn("Validation 예외 발생: {}", e.getMessage());
+
+        StringBuilder errorMessageBuilder = new StringBuilder();
+        for (FieldError fieldError : e.getBindingResult().getFieldErrors()) {
+            errorMessageBuilder
+                    .append("[")
+                    .append(fieldError.getField())
+                    .append("] ")
+                    .append(fieldError.getDefaultMessage())
+                    .append(" ");
+        }
+
+        ErrorResponse errorResponse = new ErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "VALIDATION_FAILED",
+                errorMessageBuilder.toString().trim()
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
     /**

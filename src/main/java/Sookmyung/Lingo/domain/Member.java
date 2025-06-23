@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,16 +34,16 @@ public class Member {
 
     // 생년월일
     @Column(nullable = false)
-    private Date birth;
+    private LocalDate birth;
 
     // 전화번호
     @Column(nullable = false)
     private String phoneNum;
 
-    // 회원 유형
+    // 회원 유형 - 기본값 USER
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private MemberType memberType;
+    private MemberType memberType = MemberType.USER;
 
     // === 관계 설정 ===
 
@@ -72,7 +73,7 @@ public class Member {
     public static Member createMember(String email,
                                       String password,
                                       String name,
-                                      Date birth,
+                                      LocalDate birth,
                                       String phone_num,
                                       MemberType type) {
         Member member = new Member();
