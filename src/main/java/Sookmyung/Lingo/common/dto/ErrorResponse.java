@@ -1,5 +1,6 @@
-package Sookmyung.Lingo.common;
+package Sookmyung.Lingo.common.dto;
 
+import Sookmyung.Lingo.common.ErrorCode;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
