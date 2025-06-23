@@ -1,5 +1,7 @@
-package Sookmyung.Lingo.domains;
+package Sookmyung.Lingo.domains.RawDocument.domain;
 
+import Sookmyung.Lingo.domains.Member;
+import Sookmyung.Lingo.domains.TranslatedDocument;
 import Sookmyung.Lingo.domains.enums.*;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
