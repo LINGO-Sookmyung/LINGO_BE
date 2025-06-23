@@ -15,23 +15,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Discord notification
+        env:
+          EVENT_TYPE: ${{ github.event_name }}
+          BRANCH: ${{ github.ref_name }}
+          DISCORD_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_AUTHOR: ${{ github.event.head_commit.author.name }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
         run: |
-          echo "Sending Discord notification..."
-          echo "${{ toJson(github) }}"  # 디버깅용
-
-          EVENT_TYPE="${{ github.event_name }}"
-          BRANCH="${{ github.ref_name }}"
           MESSAGE=""
 
-          if [[ "$EVENT_TYPE" == "push" ]]; then
-            MESSAGE="📌 ${BRANCH} 브랜치에 코드가 푸시되었습니다!"
-          elif [[ "$EVENT_TYPE" == "issues" ]]; then
-            MESSAGE="📝 새 이슈 생성됨: ${{ github.event.issue.title }}"
-          elif [[ "$EVENT_TYPE" == "pull_request" ]]; then
-            MESSAGE="🚀 새 PR 생성됨: ${{ github.event.pull_request.title }}"
+          if [ "$EVENT_TYPE" == "push" ]; then
+            MESSAGE="📦 *${BRANCH}* 브랜치에 커밋됨!\n👤 커밋자: *${COMMIT_AUTHOR}*\n📝 메시지: ${COMMIT_MSG}"
+          elif [ "$EVENT_TYPE" == "issues" ]; then
+            MESSAGE="📝 새 이슈 생성됨: ${ISSUE_TITLE}"
+          elif [ "$EVENT_TYPE" == "pull_request" ]; then
+            MESSAGE="🚀 새 PR 생성됨: ${PR_TITLE}"
           fi
 
           curl -H "Content-Type: application/json" \
                -X POST \
                -d "{\"content\": \"${MESSAGE}\"}" \
-               ${{ secrets.DISCORD_WEBHOOK_URL }}
+               "$DISCORD_URL"
