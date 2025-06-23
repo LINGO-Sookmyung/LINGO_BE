@@ -1,0 +1,37 @@
+name: Discord Notify
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  discord:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Discord notification
+        run: |
+          echo "Sending Discord notification..."
+          echo "${{ toJson(github) }}"  # 디버깅용
+
+          EVENT_TYPE="${{ github.event_name }}"
+          BRANCH="${{ github.ref_name }}"
+          MESSAGE=""
+
+          if [[ "$EVENT_TYPE" == "push" ]]; then
+            MESSAGE="📌 ${BRANCH} 브랜치에 코드가 푸시되었습니다!"
+          elif [[ "$EVENT_TYPE" == "issues" ]]; then
+            MESSAGE="📝 새 이슈 생성됨: ${{ github.event.issue.title }}"
+          elif [[ "$EVENT_TYPE" == "pull_request" ]]; then
+            MESSAGE="🚀 새 PR 생성됨: ${{ github.event.pull_request.title }}"
+          fi
+
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{\"content\": \"${MESSAGE}\"}" \
+               ${{ secrets.DISCORD_WEBHOOK_URL }}
