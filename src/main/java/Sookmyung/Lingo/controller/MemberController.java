@@ -23,6 +23,10 @@ public class MemberController {
     }
 
     // 중복 이메일 확인
+    @GetMapping("/check-email")
+    public boolean checkEmailDuplicate(@RequestParam String email) {
+        return memberService.isEmailDuplicate(email);
+    }
 
     // 로그인
 
