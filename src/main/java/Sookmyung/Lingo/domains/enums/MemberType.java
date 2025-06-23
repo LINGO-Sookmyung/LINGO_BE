@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.domain.enums;
+package Sookmyung.Lingo.domains.enums;
 
 public enum MemberType {
     USER, CORPORATE, ADMIN

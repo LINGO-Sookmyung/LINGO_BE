@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.domain;
+package Sookmyung.Lingo.domains;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
