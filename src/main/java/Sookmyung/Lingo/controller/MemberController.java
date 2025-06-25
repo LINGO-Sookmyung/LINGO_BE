@@ -1,5 +1,7 @@
 package Sookmyung.Lingo.controller;
 
+import Sookmyung.Lingo.dto.login.LoginRequest;
+import Sookmyung.Lingo.dto.login.LoginResponse;
 import Sookmyung.Lingo.dto.signup.SignupRequest;
 import Sookmyung.Lingo.dto.signup.SignupResponse;
 import Sookmyung.Lingo.service.MemberService;
@@ -29,6 +31,10 @@ public class MemberController {
     }
 
     // 로그인
+    @PostMapping("/login")
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
+        return memberService.login(request);
+    }
 
 
     // 로그아웃

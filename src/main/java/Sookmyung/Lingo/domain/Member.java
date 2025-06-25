@@ -45,6 +45,10 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberType memberType = MemberType.USER;
 
+    // Spring Security에서 사용하기 위한 권한 정보
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles = new ArrayList<>();
+
     // === 관계 설정 ===
 
     // 원본 문서
