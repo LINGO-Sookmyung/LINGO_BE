@@ -33,4 +33,4 @@ springdoc:
   default-produces-media-type: application/json;charset=UTF-8
 
 jwt:
-  secret: { JWT_SECRET }  # JWT 비밀 키
+  secret: ${JWT_SECRET}  # JWT 비밀 키
