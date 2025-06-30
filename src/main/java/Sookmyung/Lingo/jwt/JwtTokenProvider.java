@@ -1,8 +1,11 @@
 package Sookmyung.Lingo.jwt;
 
+import Sookmyung.Lingo.common.CustomException;
+import Sookmyung.Lingo.common.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -12,6 +15,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.util.Arrays;
@@ -40,7 +44,7 @@ public class JwtTokenProvider {
         long now = (new Date()).getTime();
 
         // AccessToken 생성
-        Date accessTokenExpiresIn = new Date(now + 86400000); // 1일
+        Date accessTokenExpiresIn = new Date(now + 60 * 60 * 1000); // 1시간
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -51,7 +55,7 @@ public class JwtTokenProvider {
         // RefreshToken 생성
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .setExpiration(new Date(now + 86400000)) // 1일
+                .setExpiration(new Date(now + 7 * 24 * 60 * 60 * 1000)) // 7일
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -68,7 +72,7 @@ public class JwtTokenProvider {
         Claims claims = parseClaims(accessToken);
 
         if (claims.get("auth") == null) {
-            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
+            throw new CustomException(ErrorCode.INVALID_TOKEN_AUTHORITY);
         }
 
         // 클레임에서 권한 정보 가져오기
@@ -115,5 +119,19 @@ public class JwtTokenProvider {
             log.info("Expired JWT Token (parseClaims): {}", e.getMessage());
             return e.getClaims();
         }
+    }
+
+    public long getTokenRemainingTime(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        return expiration.getTime() - System.currentTimeMillis();
+    }
+
+    // Request Header에서 JWT 토큰 추출
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7); // "Bearer " 이후의 토큰 부분을 반환
+        }
+        return null; // 토큰이 없으면 null 반환
     }
 }
