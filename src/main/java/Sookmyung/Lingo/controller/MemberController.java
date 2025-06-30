@@ -5,10 +5,14 @@ import Sookmyung.Lingo.dto.login.LoginRequest;
 import Sookmyung.Lingo.dto.login.LoginResponse;
 import Sookmyung.Lingo.dto.signup.SignupRequest;
 import Sookmyung.Lingo.dto.signup.SignupResponse;
+import Sookmyung.Lingo.jwt.JwtTokenProvider;
+import Sookmyung.Lingo.jwt.ReissueRequest;
 import Sookmyung.Lingo.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/member")
 public class MemberController {
     private final MemberService memberService;
+    private final JwtTokenProvider jwtTokenProvider;
 
     // 회원가입
     @PostMapping("/signup")
@@ -39,6 +44,23 @@ public class MemberController {
 
 
     // 로그아웃
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String token = jwtTokenProvider.resolveToken(request);
+        memberService.logout(token);
+        return ResponseEntity.ok("로그아웃 되었습니다.");
+    }
+
+    // 토큰 재발급
+    @PostMapping("/reissue")
+    public ResponseEntity<LoginResponse> reissue(
+            @RequestHeader("Authorization") String bearerToken,
+            @RequestBody ReissueRequest request) {
+
+        String accessToken = bearerToken.startsWith("Bearer ") ? bearerToken.substring(7) : bearerToken;
+        LoginResponse response = memberService.reissue(accessToken, request.getRefreshToken());
+        return ResponseEntity.ok(response);
+    }
 
 
     // 아이디(이메일) 찾기

@@ -14,6 +14,7 @@ import Sookmyung.Lingo.jwt.JwtTokenProvider;
 import Sookmyung.Lingo.repository.MemberRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -22,6 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.concurrent.TimeUnit;
+
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -29,6 +32,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     // 회원가입 - 일반 유저
     public SignupResponse signup(SignupRequest request) {
@@ -88,6 +92,57 @@ public class MemberService {
                 .build();
 
         return response;
+    }
+
+    // 로그아웃
+    public void logout(String accessToken) {
+        // 1. accessToken으로 사용자 정보 추출
+        String email = jwtTokenProvider.getAuthentication(accessToken).getName();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+
+        // 2. Redis에서 해당 사용자의 Refresh Token 삭제
+        redisTemplate.delete("refresh:" + member.getId());
+
+        // 3. accessToken 블랙리스트 등록
+        long expiration = jwtTokenProvider.getTokenRemainingTime(accessToken);
+        redisTemplate.opsForValue().set("blacklist:" + accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+
+    }
+
+    // 토큰 재발급
+    public LoginResponse reissue(String accessToken, String refreshToken) {
+        // 1. AccessToken에서 사용자 이메일 추출 (만료돼도 parse 가능)
+        String email = jwtTokenProvider.getAuthentication(accessToken).getName();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
+
+        // 2. Redis에서 저장된 RefreshToken 가져오기
+        String storedRefreshToken = redisTemplate.opsForValue().get("refresh:" + member.getId());
+
+        // 3. 비교
+        if (!refreshToken.equals(storedRefreshToken)) {
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+
+        // 4. 새 토큰 발급
+        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+        JwtToken newToken = jwtTokenProvider.generateToken(authentication);
+
+        // 5. RefreshToken Redis 갱신
+        long refreshExpiration = jwtTokenProvider.getTokenRemainingTime(newToken.getRefreshToken());
+        redisTemplate.opsForValue().set(
+                "refresh:" + member.getId(),
+                newToken.getRefreshToken(),
+                refreshExpiration,
+                TimeUnit.MILLISECONDS
+        );
+
+        return LoginResponse.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .jwtToken(newToken)
+                .build();
     }
 
     // 이메일 찾기
