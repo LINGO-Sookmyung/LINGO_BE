@@ -1,6 +1,7 @@
 package Sookmyung.Lingo.controller;
 
 import Sookmyung.Lingo.dto.findEmail.FindEmailRequest;
+import Sookmyung.Lingo.dto.findEmail.FindEmailResponse;
 import Sookmyung.Lingo.dto.login.LoginRequest;
 import Sookmyung.Lingo.dto.login.LoginResponse;
 import Sookmyung.Lingo.dto.signup.SignupRequest;
@@ -65,9 +66,9 @@ public class MemberController {
 
     // 아이디(이메일) 찾기
     @PostMapping("/find-email")
-    public ResponseEntity<?> findEmail(@Valid @RequestBody FindEmailRequest request) {
+    public FindEmailResponse findEmail(@Valid @RequestBody FindEmailRequest request) {
         String email = memberService.findEmail(request);
-        return ResponseEntity.ok(email);
+        return new FindEmailResponse(email);
     }
 
     // 비밀번호 찾기
