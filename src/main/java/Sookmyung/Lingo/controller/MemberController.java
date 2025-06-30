@@ -54,15 +54,11 @@ public class MemberController {
 
     // 토큰 재발급
     @PostMapping("/reissue")
-    public ResponseEntity<LoginResponse> reissue(
-            @RequestHeader("Authorization") String bearerToken,
-            @RequestBody ReissueRequest request) {
-
-        String accessToken = bearerToken.startsWith("Bearer ") ? bearerToken.substring(7) : bearerToken;
-        LoginResponse response = memberService.reissue(accessToken, request.getRefreshToken());
-        return ResponseEntity.ok(response);
+    public ResponseEntity<LoginResponse> reissue(HttpServletRequest request,
+                                                 @RequestBody ReissueRequest body) {
+        String accessToken = jwtTokenProvider.resolveToken(request);
+        return ResponseEntity.ok(memberService.reissue(accessToken, body.getRefreshToken()));
     }
-
 
     // 아이디(이메일) 찾기
     @PostMapping("/find-email")
