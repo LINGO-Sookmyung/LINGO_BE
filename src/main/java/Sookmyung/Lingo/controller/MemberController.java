@@ -65,8 +65,9 @@ public class MemberController {
 
     // 아이디(이메일) 찾기
     @PostMapping("/find-email")
-    public String findEmail(@Valid @RequestBody FindEmailRequest request) {
-        return memberService.findEmail(request);
+    public ResponseEntity<?> findEmail(@Valid @RequestBody FindEmailRequest request) {
+        String email = memberService.findEmail(request);
+        return ResponseEntity.ok(email);
     }
 
     // 비밀번호 찾기
