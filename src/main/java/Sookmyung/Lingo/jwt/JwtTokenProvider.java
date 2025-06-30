@@ -27,6 +27,8 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
     private final SecretKey key;
+    private final long accessTokenValidityInMilliseconds = 60 * 60 * 1000L; // 1시간
+    private final long refreshTokenValidityInMilliseconds = 7 * 24 * 60 * 60 * 1000L; // 7일
 
     // application.yml에서 secret 값 가져와서 key에 저장
     public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
@@ -44,7 +46,7 @@ public class JwtTokenProvider {
         long now = (new Date()).getTime();
 
         // AccessToken 생성
-        Date accessTokenExpiresIn = new Date(now + 60 * 60 * 1000); // 1시간
+        Date accessTokenExpiresIn = new Date(now + accessTokenValidityInMilliseconds); // 1시간
         String accessToken = Jwts.builder()
                 .setSubject(authentication.getName())
                 .claim("auth", authorities)
@@ -55,7 +57,7 @@ public class JwtTokenProvider {
         // RefreshToken 생성
         String refreshToken = Jwts.builder()
                 .setSubject(authentication.getName())
-                .setExpiration(new Date(now + 7 * 24 * 60 * 60 * 1000)) // 7일
+                .setExpiration(new Date(now + refreshTokenValidityInMilliseconds)) // 7일
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
@@ -78,6 +80,7 @@ public class JwtTokenProvider {
         // 클레임에서 권한 정보 가져오기
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(
                         claims.get("auth").toString().split(","))
+                .filter(s -> s != null && !s.trim().isEmpty())
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
@@ -133,5 +136,9 @@ public class JwtTokenProvider {
             return bearerToken.substring(7); // "Bearer " 이후의 토큰 부분을 반환
         }
         return null; // 토큰이 없으면 null 반환
+    }
+
+    public long getRefreshTokenExpiration() {
+        return refreshTokenValidityInMilliseconds;
     }
 }
