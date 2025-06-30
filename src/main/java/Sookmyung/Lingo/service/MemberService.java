@@ -1,12 +1,13 @@
 package Sookmyung.Lingo.service;
 
+import Sookmyung.Lingo.common.CustomException;
+import Sookmyung.Lingo.common.ErrorCode;
 import Sookmyung.Lingo.domain.Member;
 import Sookmyung.Lingo.domain.enums.MemberType;
 import Sookmyung.Lingo.dto.login.LoginRequest;
 import Sookmyung.Lingo.dto.login.LoginResponse;
 import Sookmyung.Lingo.dto.signup.SignupRequest;
 import Sookmyung.Lingo.dto.signup.SignupResponse;
-import Sookmyung.Lingo.exception.MemberNotFoundException;
 import Sookmyung.Lingo.jwt.JwtToken;
 import Sookmyung.Lingo.jwt.JwtTokenProvider;
 import Sookmyung.Lingo.repository.MemberRepository;
@@ -31,10 +32,10 @@ public class MemberService {
     // 회원가입 - 일반 유저
     public SignupResponse signup(SignupRequest request) {
         if (isEmailDuplicate(request.getEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new CustomException(ErrorCode.ALREADY_EXISTS_MEMBER_EMAIL);
         }
         if (!request.getPassword().equals(request.getPwConfirm())) {
-            throw new IllegalArgumentException("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+            throw new CustomException(ErrorCode.NOT_MATCH_PASSWORD_CONFIRM);
         }
         Member member = Member.createMember(
                 request.getEmail(),
@@ -78,7 +79,7 @@ public class MemberService {
         User user = (User) authentication.getPrincipal();
         String email = user.getUsername();
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new MemberNotFoundException());
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_MEMBER_EMAIL));
         LoginResponse response = LoginResponse.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())

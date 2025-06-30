@@ -16,7 +16,9 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     // M - member 관련 에러 코드
-    NOT_EXISTS_MEMBER_ID(HttpStatus.NOT_FOUND, "M-001", "존재하지 않는 회원 아이디입니다.");
+    NOT_EXISTS_MEMBER_EMAIL(HttpStatus.NOT_FOUND, "M-001", "존재하지 않는 회원 이메일입니다."),
+    ALREADY_EXISTS_MEMBER_EMAIL(HttpStatus.CONFLICT, "M-002", "이미 존재하는 회원 이메일입니다."),
+    NOT_MATCH_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "M-003", "비밀번호와 비밀번호 확인이 일치하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode; // 커스텀 에러 코드 -> http status code만으로는 정학한 원인 파악이 어렵기 때문

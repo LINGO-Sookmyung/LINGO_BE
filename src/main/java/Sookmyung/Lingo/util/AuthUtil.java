@@ -1,7 +1,8 @@
 package Sookmyung.Lingo.util;
 
+import Sookmyung.Lingo.common.CustomException;
+import Sookmyung.Lingo.common.ErrorCode;
 import Sookmyung.Lingo.domain.Member;
-import Sookmyung.Lingo.exception.MemberNotFoundException;
 import Sookmyung.Lingo.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -18,6 +19,6 @@ public class AuthUtil {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String email = ((User) auth.getPrincipal()).getUsername();
         return memberRepository.findByEmail(email)
-                .orElseThrow(() -> new MemberNotFoundException());
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_MEMBER_EMAIL));
     }
 }
