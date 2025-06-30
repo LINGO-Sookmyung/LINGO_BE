@@ -12,6 +12,7 @@ import Sookmyung.Lingo.dto.signup.SignupResponse;
 import Sookmyung.Lingo.jwt.JwtToken;
 import Sookmyung.Lingo.jwt.JwtTokenProvider;
 import Sookmyung.Lingo.repository.MemberRepository;
+import Sookmyung.Lingo.util.AuthUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -33,6 +34,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
+    private final AuthUtil authUtil;
 
     // 회원가입 - 일반 유저
     public SignupResponse signup(SignupRequest request) {
@@ -80,11 +82,23 @@ public class MemberService {
         // 3. 인증이 성공하면 JWT 토큰 생성
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 
-        // 4. 로그인 성공 시 응답 객체 생성
+        // UserDetails 객체에서 email 추출
         User user = (User) authentication.getPrincipal();
         String email = user.getUsername();
+
+        // Member 객체를 가져오기
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_EXISTS_MEMBER_EMAIL));
+
+        // refreshToken Redis에 저장
+        redisTemplate.opsForValue().set(
+                "refresh:" + member.getId(),
+                jwtToken.getRefreshToken(),
+                jwtTokenProvider.getRefreshTokenExpiration(),
+                TimeUnit.MILLISECONDS
+        );
+
+        // 4. 로그인 성공 시 응답 객체 생성
         LoginResponse response = LoginResponse.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
