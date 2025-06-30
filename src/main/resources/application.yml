@@ -31,3 +31,15 @@ springdoc:
 
   default-consumes-media-type: application/json;charset=UTF-8
   default-produces-media-type: application/json;charset=UTF-8
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${S3_ACCESS_KEY}
+      secret-key: ${S3_SECRET_KEY}
+    s3:
+      bucket: ${S3_BUCKET_NAME}
+    region:
+      static: ${S3_REGION}
+    stack:
+      auto: false
