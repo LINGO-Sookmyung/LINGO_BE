@@ -4,6 +4,7 @@ import Sookmyung.Lingo.common.CustomException;
 import Sookmyung.Lingo.common.ErrorCode;
 import Sookmyung.Lingo.domain.Member;
 import Sookmyung.Lingo.domain.enums.MemberType;
+import Sookmyung.Lingo.dto.findEmail.FindEmailRequest;
 import Sookmyung.Lingo.dto.login.LoginRequest;
 import Sookmyung.Lingo.dto.login.LoginResponse;
 import Sookmyung.Lingo.dto.signup.SignupRequest;
@@ -87,5 +88,14 @@ public class MemberService {
                 .build();
 
         return response;
+    }
+
+    // 이메일 찾기
+    public String findEmail(FindEmailRequest request) {
+        // 요청된 이름과 전화번호로 회원 조회
+        Member member = memberRepository.findByNameAndPhoneNum(request.getName(), request.getPhoneNum())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+        // 회원이 존재하면 이메일 반환
+        return member.getEmail();
     }
 }
