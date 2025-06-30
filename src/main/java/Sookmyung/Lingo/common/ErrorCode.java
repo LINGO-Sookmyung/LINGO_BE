@@ -20,7 +20,12 @@ public enum ErrorCode {
     ALREADY_EXISTS_MEMBER_EMAIL(HttpStatus.CONFLICT, "M-002", "이미 등록된 이메일입니다."),
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "M-003", "일치하는 회원 정보를 찾을 수 없습니다."),
     NOT_MATCH_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "M-004", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
-    UNAUTHORIZED_MEMBER(HttpStatus.UNAUTHORIZED, "M-005", "회원 인증 정보가 유효하지 않습니다.");
+    UNAUTHORIZED_MEMBER(HttpStatus.UNAUTHORIZED, "M-005", "회원 인증 정보가 유효하지 않습니다."),
+
+    // T - token 관련 에러 코드
+    UNAUTHORIZED_TOKEN(HttpStatus.UNAUTHORIZED, "T-001", "유효하지 않은 토큰입니다."),
+    INVALID_TOKEN_AUTHORITY(HttpStatus.FORBIDDEN, "T-002", "토큰 권한이 유효하지 않습니다."),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "T-003", "유효하지 않은 리프레시 토큰입니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode; // 커스텀 에러 코드 -> http status code만으로는 정학한 원인 파악이 어렵기 때문
