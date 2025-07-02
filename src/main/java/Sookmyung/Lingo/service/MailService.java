@@ -51,6 +51,7 @@ public class MailService {
         body += "<div style='font-size: 24px; font-weight: bold; color: #333; margin: 20px 0;'>[ " + number + " ]</div>";
         body += "<p style='color: #555;'>계정에 등록된 이메일로 발송되었습니다.</p>";
         body += "<p style='color: #555;'>직접 요청하지 않으셨다면 즉시 비밀번호를 변경해 주세요.</p>";
+        body += "<p style='color: #555;'>인증 번호는 10분 동안 유효합니다.</p>";
         body += "<p style='margin-top: 30px;'>감사합니다.<br><strong>Lingo 팀 드림</strong></p>";
         body += "</div>";
 
