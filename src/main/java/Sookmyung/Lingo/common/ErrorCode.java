@@ -25,7 +25,12 @@ public enum ErrorCode {
     // T - token 관련 에러 코드
     UNAUTHORIZED_TOKEN(HttpStatus.UNAUTHORIZED, "T-001", "유효하지 않은 토큰입니다."),
     INVALID_TOKEN_AUTHORITY(HttpStatus.FORBIDDEN, "T-002", "토큰 권한이 유효하지 않습니다."),
-    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "T-003", "유효하지 않은 리프레시 토큰입니다.");
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "T-003", "유효하지 않은 리프레시 토큰입니다."),
+
+    // E - email 인증 관련 에러 코드
+    EMAIL_SEND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E-001", "이메일 발송 중 오류가 발생했습니다."),
+    NOT_MATCH_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "E-002", "인증 코드가 일치하지 않습니다."),
+    NOT_EXISTS_VERIFICATION_CODE(HttpStatus.NOT_FOUND, "E-003", "인증 코드가 존재하지 않습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode; // 커스텀 에러 코드 -> http status code만으로는 정학한 원인 파악이 어렵기 때문
