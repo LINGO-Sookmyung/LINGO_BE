@@ -4,10 +4,14 @@ import Sookmyung.Lingo.dto.findEmail.FindEmailRequest;
 import Sookmyung.Lingo.dto.findEmail.FindEmailResponse;
 import Sookmyung.Lingo.dto.login.LoginRequest;
 import Sookmyung.Lingo.dto.login.LoginResponse;
+import Sookmyung.Lingo.dto.resetPassword.ResetPasswordRequest;
+import Sookmyung.Lingo.dto.resetPassword.ResetPasswordResponse;
+import Sookmyung.Lingo.dto.resetPassword.VerifyCodeRequest;
 import Sookmyung.Lingo.dto.signup.SignupRequest;
 import Sookmyung.Lingo.dto.signup.SignupResponse;
 import Sookmyung.Lingo.jwt.JwtTokenProvider;
 import Sookmyung.Lingo.jwt.ReissueRequest;
+import Sookmyung.Lingo.service.MailService;
 import Sookmyung.Lingo.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -68,4 +72,17 @@ public class MemberController {
     }
 
     // 비밀번호 찾기
+    // 1. 비밀번호 찾기 요청
+    @PostMapping("/reset-password/send")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        // 이메일로 인증 코드 전송
+        memberService.sendVerifyCodeEmail(request);
+        return ResponseEntity.ok("인증 코드가 이메일로 전송되었습니다.");
+    }
+
+    // 2. 인증코드 검증 및 재발급
+    @PostMapping("/reset-password/verify")
+    public ResetPasswordResponse verifyCodeAndResetPassword(@Valid @RequestBody VerifyCodeRequest request) {
+        return memberService.verifyCodeAndResetPassword(request);
+    }
 }
