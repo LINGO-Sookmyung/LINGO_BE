@@ -45,6 +45,8 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
     // Redis 설정
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    // 이메일
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
 }
 
 tasks.named('test') {
