@@ -90,4 +90,9 @@ public class Member {
 
         return member;
     }
+
+    // === 메서드 ===
+    public void setTempPassword(String tempPassword) {
+        this.password = tempPassword;
+    }
 }
