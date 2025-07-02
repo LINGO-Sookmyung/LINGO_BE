@@ -7,12 +7,14 @@ import Sookmyung.Lingo.domain.enums.MemberType;
 import Sookmyung.Lingo.dto.findEmail.FindEmailRequest;
 import Sookmyung.Lingo.dto.login.LoginRequest;
 import Sookmyung.Lingo.dto.login.LoginResponse;
+import Sookmyung.Lingo.dto.resetPassword.ResetPasswordRequest;
+import Sookmyung.Lingo.dto.resetPassword.ResetPasswordResponse;
+import Sookmyung.Lingo.dto.resetPassword.VerifyCodeRequest;
 import Sookmyung.Lingo.dto.signup.SignupRequest;
 import Sookmyung.Lingo.dto.signup.SignupResponse;
 import Sookmyung.Lingo.jwt.JwtToken;
 import Sookmyung.Lingo.jwt.JwtTokenProvider;
 import Sookmyung.Lingo.repository.MemberRepository;
-import Sookmyung.Lingo.util.AuthUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,6 +26,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -34,7 +37,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
-    private final AuthUtil authUtil;
+    private final MailService mailService;
 
     // 회원가입 - 일반 유저
     public SignupResponse signup(SignupRequest request) {
@@ -166,5 +169,64 @@ public class MemberService {
                 .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
         // 회원이 존재하면 이메일 반환
         return member.getEmail();
+    }
+
+    // 비밀번호 재설정 요청 시 이메일로 인증 코드 전송
+    public void sendVerifyCodeEmail(ResetPasswordRequest request) {
+        // 1. 요청된 이메일로 회원 조회
+        Member member = memberRepository.findByEmailAndName(request.getEmail(), request.getName())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 2. 인증 메일 발송
+        try {
+            String verificationCode = mailService.sendVerifyCodeMessage(member.getEmail());
+            // 3. 인증 코드 Redis에 저장 (key: email, value: code, expiration: 10분)
+            redisTemplate.opsForValue().set(
+                    "verifyCode:" + member.getEmail(),
+                    verificationCode,
+                    10, TimeUnit.MINUTES
+            );
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.EMAIL_SEND_ERROR);
+        }
+    }
+
+    // 인증 코드 검증 및 비밀번호 재설정
+    public ResetPasswordResponse verifyCodeAndResetPassword(VerifyCodeRequest request) {
+        // 1. Redis에서 인증 코드 조회
+        String storedCode = redisTemplate.opsForValue().get("verifyCode:" + request.getEmail());
+        if (storedCode == null || !storedCode.equals(request.getVerificationCode())) {
+            throw new CustomException(ErrorCode.NOT_EXISTS_VERIFICATION_CODE);
+        }
+
+        // 2. 인증 코드가 유효하면 비밀번호 재설정
+        Member member = memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
+
+        // 3. 임시비밀번호 발급 & 암호화 후 저장
+        String newPassword = createTempPassword();
+        member.setTempPassword(passwordEncoder.encode(newPassword));
+        memberRepository.save(member);
+
+        // 4. 응답 객체 생성
+        ResetPasswordResponse response = new ResetPasswordResponse();
+        response.setNewPassword(newPassword);
+        return response;
+    }
+
+    private String createTempPassword() {
+        Random random = new Random();
+        StringBuilder key = new StringBuilder();
+
+        for (int i = 0; i < 8; i++) { // 임시 비밀번호 10자리
+            int index = random.nextInt(3); // 랜덤으로 0, 1, 2 중 하나 선택
+
+            switch (index) {
+                case 0 -> key.append((char) (random.nextInt(26) + 97)); // 소문자
+                case 1 -> key.append((char) (random.nextInt(26) + 65)); // 대문자
+                case 2 -> key.append(random.nextInt(10)); // 숫자
+            }
+        }
+        return key.toString();
     }
 }
