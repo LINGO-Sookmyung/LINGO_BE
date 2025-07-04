@@ -48,3 +48,11 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+tasks.named('processResources') {
+	doLast {
+		copy {
+			from('src/main/resources/.env')
+			into("$buildDir/resources/main")
+		}
+	}
+}
