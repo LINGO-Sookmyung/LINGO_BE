@@ -16,7 +16,10 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     // M - member 관련 에러 코드
-    NOT_EXISTS_MEMBER_ID(HttpStatus.NOT_FOUND, "M-001", "존재하지 않는 회원 아이디입니다.");
+    NOT_EXISTS_MEMBER_ID(HttpStatus.NOT_FOUND, "M-001", "존재하지 않는 회원 아이디입니다."),
+
+    //F - file 파일 업로드 관련
+    NO_FILE_UPLOADED(HttpStatus.BAD_REQUEST, "F-001", "업로드된 이미지가 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode; // 커스텀 에러 코드 -> http status code만으로는 정학한 원인 파악이 어렵기 때문

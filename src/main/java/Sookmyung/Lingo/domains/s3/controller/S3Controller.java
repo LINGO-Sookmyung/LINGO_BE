@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import Sookmyung.Lingo.common.CustomException;
+import Sookmyung.Lingo.common.ErrorCode;
 import Sookmyung.Lingo.common.dto.DataResponse;
 import Sookmyung.Lingo.common.dto.ErrorResponse;
 import Sookmyung.Lingo.domains.s3.service.S3Service;
@@ -44,8 +46,11 @@ public class S3Controller {
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<DataResponse<List<String>>> uploadFile(
 		@Parameter(description = "업로드할 파일들", required = true)
-		@RequestPart("files") List<MultipartFile> multipartFiles
+		@RequestPart(name = "files", required = false) List<MultipartFile> multipartFiles
 	) {
+		if (multipartFiles == null || multipartFiles.isEmpty()) {
+			throw new CustomException(ErrorCode.NO_FILE_UPLOADED);
+		}
 		List<String> urls = s3Service.uploadFile(multipartFiles);
 		return ResponseEntity.ok(DataResponse.of(urls, "파일 업로드 성공"));
 	}
