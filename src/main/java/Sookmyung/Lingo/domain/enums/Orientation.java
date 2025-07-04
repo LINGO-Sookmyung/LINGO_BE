@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.domains.enums;
+package Sookmyung.Lingo.domain.enums;
 
 public enum Orientation {
     PORTRAIT, LANDSCAPE
