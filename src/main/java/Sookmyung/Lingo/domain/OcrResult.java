@@ -1,8 +1,9 @@
-package Sookmyung.Lingo.domains;
+package Sookmyung.Lingo.domain;
 
-import Sookmyung.Lingo.domains.RawDocument.domain.RawDocumentImage;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Map;
 
 @Entity
 @Getter

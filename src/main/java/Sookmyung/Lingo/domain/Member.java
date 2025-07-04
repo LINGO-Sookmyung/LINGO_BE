@@ -1,7 +1,6 @@
-package Sookmyung.Lingo.domains;
+package Sookmyung.Lingo.domain;
 
-import Sookmyung.Lingo.domains.RawDocument.domain.RawDocument;
-import Sookmyung.Lingo.domains.enums.MemberType;
+import Sookmyung.Lingo.domain.enums.MemberType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -38,7 +37,7 @@ public class Member {
 
     // 전화번호
     @Column(nullable = false)
-    private String phoneNum;
+    private String phone_num;
 
     // 회원 유형
     @Column(nullable = false)
@@ -81,7 +80,7 @@ public class Member {
         member.password = password;
         member.name = name;
         member.birth = birth;
-        member.phoneNum = phone_num;
+        member.phone_num = phone_num;
         member.memberType = type;
 
         return member;
