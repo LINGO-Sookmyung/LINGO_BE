@@ -1,5 +1,6 @@
-package Sookmyung.Lingo.domain;
+package Sookmyung.Lingo.domains;
 
+import Sookmyung.Lingo.domains.RawDocument.domain.RawDocument;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
