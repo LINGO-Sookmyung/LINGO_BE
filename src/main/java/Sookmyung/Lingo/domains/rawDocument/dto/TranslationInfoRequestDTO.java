@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.domains.RawDocument.dto;
+package Sookmyung.Lingo.domains.rawDocument.dto;
 
 import Sookmyung.Lingo.domains.enums.*;
 import lombok.*;

@@ -1,6 +1,6 @@
 package Sookmyung.Lingo.domains;
 
-import Sookmyung.Lingo.domains.RawDocument.domain.RawDocumentImage;
+import Sookmyung.Lingo.domains.rawDocument.domain.RawDocumentImage;
 import jakarta.persistence.*;
 import lombok.*;
 

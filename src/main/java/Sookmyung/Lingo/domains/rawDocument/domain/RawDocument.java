@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.domains.RawDocument.domain;
+package Sookmyung.Lingo.domains.rawDocument.domain;
 
 import Sookmyung.Lingo.domains.Member;
 import Sookmyung.Lingo.domains.TranslatedDocument;

@@ -1,12 +1,12 @@
-package Sookmyung.Lingo.domains.RawDocument.service;
+package Sookmyung.Lingo.domains.rawDocument.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import Sookmyung.Lingo.domains.Member;
-import Sookmyung.Lingo.domains.RawDocument.domain.RawDocument;
-import Sookmyung.Lingo.domains.RawDocument.dto.RawDocumentRequestDTO;
-import Sookmyung.Lingo.domains.RawDocument.repository.RawDocumentRepository;
+import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
+import Sookmyung.Lingo.domains.rawDocument.dto.RawDocumentRequestDTO;
+import Sookmyung.Lingo.domains.rawDocument.repository.RawDocumentRepository;
 import jakarta.transaction.Transactional;
 
 @Service

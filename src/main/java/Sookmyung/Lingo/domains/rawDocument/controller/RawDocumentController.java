@@ -1,10 +1,7 @@
-package Sookmyung.Lingo.domains.RawDocument.controller;
+package Sookmyung.Lingo.domains.rawDocument.controller;
 
-import org.springframework.context.annotation.Conditional;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -13,10 +10,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import Sookmyung.Lingo.common.dto.DataResponse;
 import Sookmyung.Lingo.common.dto.ErrorResponse;
-import Sookmyung.Lingo.domains.Member;
-import Sookmyung.Lingo.domains.RawDocument.domain.RawDocument;
-import Sookmyung.Lingo.domains.RawDocument.dto.RawDocumentRequestDTO;
-import Sookmyung.Lingo.domains.RawDocument.service.RawDocumentService;
+import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
+import Sookmyung.Lingo.domains.rawDocument.dto.RawDocumentRequestDTO;
+import Sookmyung.Lingo.domains.rawDocument.service.RawDocumentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
