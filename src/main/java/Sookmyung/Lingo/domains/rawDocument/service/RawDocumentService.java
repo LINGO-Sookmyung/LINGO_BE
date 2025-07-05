@@ -1,10 +1,13 @@
 package Sookmyung.Lingo.domains.rawDocument.service;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import Sookmyung.Lingo.domains.Member;
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
+import Sookmyung.Lingo.domains.rawDocument.domain.RawDocumentImage;
 import Sookmyung.Lingo.domains.rawDocument.dto.RawDocumentRequestDTO;
 import Sookmyung.Lingo.domains.rawDocument.repository.RawDocumentRepository;
 import jakarta.transaction.Transactional;
@@ -20,8 +23,19 @@ public class RawDocumentService {
 	}
 
 	@Transactional
-	public RawDocument saveRawDocument(RawDocumentRequestDTO dto, Member member) {
+	public RawDocument saveRawDocument(RawDocumentRequestDTO dto, List<String> imageUrls, Member member) {
 		RawDocument rawDocument = dto.toEntity(member);
+
+		for (int i = 0; i < imageUrls.size(); i++) {
+			RawDocumentImage image = RawDocumentImage.builder()
+				.rawFilename("original_" + (i + 1)) // 필요시 MultipartFile의 원래 이름 저장도 고려
+				.pageNumber((long) (i + 1)) // 페이지 번호
+				.rawFilePath(imageUrls.get(i)) // S3 URL
+				.build();
+
+			rawDocument.addRawDocumentImage(image);
+		}
+
 		return rawDocumentRepository.save(rawDocument);
 	}
 }

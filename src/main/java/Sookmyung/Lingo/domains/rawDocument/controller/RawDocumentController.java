@@ -1,5 +1,7 @@
 package Sookmyung.Lingo.domains.rawDocument.controller;
 
+import java.util.List;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +15,7 @@ import Sookmyung.Lingo.common.dto.ErrorResponse;
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
 import Sookmyung.Lingo.domains.rawDocument.dto.RawDocumentRequestDTO;
 import Sookmyung.Lingo.domains.rawDocument.service.RawDocumentService;
+import Sookmyung.Lingo.domains.s3.service.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,29 +29,29 @@ import lombok.RequiredArgsConstructor;
 public class RawDocumentController {
 
 	private final RawDocumentService rawDocumentService;
+	private final S3Service s3Service;
 
 	@Operation(
 		summary = "원본 문서 등록 (비회원)",
-		description = "문서 파일을 등록, 현재는 로그인 없이만 가능하며, 회원 기능은 추후 연동 예정",
+		description = "문서 DTO + 다중 이미지 파일을 업로드하여 S3에 저장하고 DB에 등록합니다.",
 		responses = {
 			@ApiResponse(responseCode = "200", description = "등록 성공",
 				content = @Content(schema = @Schema(implementation = DataResponse.class))),
-			@ApiResponse(responseCode = "400", description = "잘못된 요청",
-				content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-			@ApiResponse(responseCode = "500", description = "서버 오류",
+			@ApiResponse(responseCode = "400", description = "요청 에러",
 				content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
 		}
 	)
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ResponseEntity<DataResponse<Long>> uploadRawDocument(
-		@Parameter(description = "문서 업로드 요청 DTO", required = true)
+		@Parameter(description = "문서 DTO", required = true)
 		@RequestPart("requestDTO") RawDocumentRequestDTO requestDTO,
 
-		@Parameter(description = "문서 이미지 파일", required = true)
-		@RequestPart("file") MultipartFile file
+		@Parameter(description = "이미지 파일 목록", required = true)
+		@RequestPart("files") List<MultipartFile> files
 	) {
-		RawDocument saved = rawDocumentService.saveRawDocument(requestDTO, null); // 회원 연동 예정
+		List<String> imageUrls = s3Service.uploadFile(files);
 
+		RawDocument saved = rawDocumentService.saveRawDocument(requestDTO, imageUrls, null);
 		return ResponseEntity.ok(DataResponse.of(saved.getId(), "문서가 성공적으로 저장되었습니다."));
 	}
 }
