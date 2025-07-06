@@ -18,7 +18,7 @@ public class AuthUtil {
 
     public Member getCurrentMember() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = ((User) auth.getPrincipal()).getUsername();
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
     }
