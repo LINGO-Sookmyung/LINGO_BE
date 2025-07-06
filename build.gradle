@@ -52,6 +52,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     // 이메일
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+	//Apache PDFBox
+	implementation 'org.apache.pdfbox:pdfbox:2.0.27'
 }
 
 tasks.named('test') {
