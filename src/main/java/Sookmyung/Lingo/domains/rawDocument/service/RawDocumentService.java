@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import Sookmyung.Lingo.domains.Member;
+import Sookmyung.Lingo.domains.member.domain.Member;
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocumentImage;
 import Sookmyung.Lingo.domains.rawDocument.dto.RawDocumentRequestDTO;

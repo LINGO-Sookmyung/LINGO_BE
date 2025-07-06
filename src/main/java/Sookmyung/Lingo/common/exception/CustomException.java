@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.common;
+package Sookmyung.Lingo.common.exception;
 
 public class CustomException extends RuntimeException {
     private final ErrorCode errorCode;

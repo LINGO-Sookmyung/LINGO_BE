@@ -1,10 +1,6 @@
 package Sookmyung.Lingo.domains.rawDocument.dto;
 
-import java.util.List;
-
-import org.springframework.web.multipart.MultipartFile;
-
-import Sookmyung.Lingo.domains.Member;
+import Sookmyung.Lingo.domains.member.domain.Member;
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
 import Sookmyung.Lingo.domains.enums.*;
 import io.swagger.v3.oas.annotations.media.Schema;
