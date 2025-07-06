@@ -1,5 +1,7 @@
 package Sookmyung.Lingo.config;
 
+import static org.springframework.web.servlet.function.RequestPredicates.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,11 +18,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // CSRF 보호 비활성화
-        http.csrf(csrf -> csrf.disable());
+        http.csrf(csrf -> csrf.disable())
+        .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+
 
         // H2 콘솔 접근 허용
         http.authorizeHttpRequests(authz -> authz
-                .requestMatchers("/h2-console/**").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
+                .requestMatchers("/h2-console/**","/favicon.ico").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
                 .requestMatchers("/api-docs", "/swagger-ui.html", "/api-docs/**", "/swagger-ui/**", "/v3/api-docs/**","/api/test/**").permitAll() // 스웨거 인증 없이 접근 허용
                 .anyRequest().authenticated()  // 나머지 요청은 인증 필요
         );
