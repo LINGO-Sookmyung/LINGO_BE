@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import Sookmyung.Lingo.common.exception.CustomException;
+import Sookmyung.Lingo.common.exception.ErrorCode;
 import Sookmyung.Lingo.domains.member.domain.Member;
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocumentImage;
@@ -24,6 +26,9 @@ public class RawDocumentService {
 
 	@Transactional
 	public RawDocument saveRawDocument(RawDocumentRequestDTO dto, List<String> imageUrls, Member member) {
+		if (!dto.getTotalPages().equals((long) imageUrls.size())) {
+			throw new CustomException(ErrorCode.FILE_TOTAL_PAGE_MISMATCH); // 커스텀 예외
+		}
 		RawDocument rawDocument = dto.toEntity(member);
 
 		for (int i = 0; i < imageUrls.size(); i++) {
