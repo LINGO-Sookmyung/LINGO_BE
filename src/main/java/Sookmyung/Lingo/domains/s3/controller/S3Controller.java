@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import Sookmyung.Lingo.common.CustomException;
-import Sookmyung.Lingo.common.ErrorCode;
+import Sookmyung.Lingo.common.exception.CustomException;
+import Sookmyung.Lingo.common.exception.ErrorCode;
 import Sookmyung.Lingo.common.dto.DataResponse;
 import Sookmyung.Lingo.common.dto.ErrorResponse;
 import Sookmyung.Lingo.domains.s3.service.S3Service;

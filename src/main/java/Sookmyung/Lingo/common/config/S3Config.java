@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.config;
+package Sookmyung.Lingo.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

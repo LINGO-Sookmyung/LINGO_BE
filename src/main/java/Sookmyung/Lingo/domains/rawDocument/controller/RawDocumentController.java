@@ -12,6 +12,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import Sookmyung.Lingo.common.dto.DataResponse;
 import Sookmyung.Lingo.common.dto.ErrorResponse;
+import Sookmyung.Lingo.common.exception.CustomException;
+import Sookmyung.Lingo.common.util.AuthUtil;
+import Sookmyung.Lingo.domains.member.domain.Member;
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
 import Sookmyung.Lingo.domains.rawDocument.dto.RawDocumentRequestDTO;
 import Sookmyung.Lingo.domains.rawDocument.service.RawDocumentService;
@@ -22,14 +25,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api-docs/documents")
 @RequiredArgsConstructor
+@Slf4j
 public class RawDocumentController {
 
 	private final RawDocumentService rawDocumentService;
 	private final S3Service s3Service;
+	private final AuthUtil authUtil;
+
 
 	@Operation(
 		summary = "원본 문서 등록 (비회원)",
@@ -51,7 +58,14 @@ public class RawDocumentController {
 	) {
 		List<String> imageUrls = s3Service.uploadFile(files);
 
-		RawDocument saved = rawDocumentService.saveRawDocument(requestDTO, imageUrls, null);
+		Member member = null;
+		try {
+			member = authUtil.getCurrentMember();
+		} catch (CustomException e) {
+			log.info("비회원 접근으로 간주: {}", e.getErrorCode().getMessage());
+		}
+
+		RawDocument saved = rawDocumentService.saveRawDocument(requestDTO, imageUrls, member);
 		return ResponseEntity.ok(DataResponse.of(saved.getId(), "문서가 성공적으로 저장되었습니다."));
 	}
 }
