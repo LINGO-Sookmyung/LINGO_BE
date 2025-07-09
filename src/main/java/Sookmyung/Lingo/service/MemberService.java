@@ -4,6 +4,8 @@ import Sookmyung.Lingo.common.CustomException;
 import Sookmyung.Lingo.common.ErrorCode;
 import Sookmyung.Lingo.domain.Member;
 import Sookmyung.Lingo.domain.enums.MemberType;
+import Sookmyung.Lingo.dto.changePassword.CurrentPasswordRequest;
+import Sookmyung.Lingo.dto.changePassword.NewPasswordRequest;
 import Sookmyung.Lingo.dto.findEmail.FindEmailRequest;
 import Sookmyung.Lingo.dto.login.LoginRequest;
 import Sookmyung.Lingo.dto.login.LoginResponse;
@@ -15,6 +17,7 @@ import Sookmyung.Lingo.dto.signup.SignupResponse;
 import Sookmyung.Lingo.jwt.JwtToken;
 import Sookmyung.Lingo.jwt.JwtTokenProvider;
 import Sookmyung.Lingo.repository.MemberRepository;
+import Sookmyung.Lingo.util.AuthUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -38,6 +41,7 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
     private final MailService mailService;
+    private final AuthUtil authUtil;
 
     // 회원가입 - 일반 유저
     public SignupResponse signup(SignupRequest request) {
@@ -228,5 +232,31 @@ public class MemberService {
             }
         }
         return key.toString();
+    }
+
+    // 비밀번호 변경 - 현재 비밀번호 확인
+    public boolean checkCurrentPassword(CurrentPasswordRequest request) {
+        Member member = authUtil.getCurrentMember();
+        if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
+            return false; // 현재 비밀번호가 일치하지 않으면 false 반환
+        }
+        return true; // 현재 비밀번호가 일치하면 true 반환
+    }
+
+    // 비밀번호 변경 - 새 비밀번호로 변경
+    public void changePassword(NewPasswordRequest request) {
+        Member member = authUtil.getCurrentMember();
+
+        // 새 비밀번호와 확인 비밀번호가 일치하는지 확인
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new CustomException(ErrorCode.NOT_MATCH_PASSWORD_CONFIRM);
+        }
+
+        // 새 비밀번호 암호화
+        String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
+
+        // 비밀번호 변경
+        member.updatePassword(encodedNewPassword);
+        memberRepository.save(member);
     }
 }

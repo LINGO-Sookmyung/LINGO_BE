@@ -1,5 +1,8 @@
 package Sookmyung.Lingo.controller;
 
+import Sookmyung.Lingo.dto.changePassword.CurrentPasswordRequest;
+import Sookmyung.Lingo.dto.changePassword.CurrentPasswordResponse;
+import Sookmyung.Lingo.dto.changePassword.NewPasswordRequest;
 import Sookmyung.Lingo.dto.findEmail.FindEmailRequest;
 import Sookmyung.Lingo.dto.findEmail.FindEmailResponse;
 import Sookmyung.Lingo.dto.login.LoginRequest;
@@ -84,5 +87,19 @@ public class MemberController {
     @PostMapping("/reset-password/verify")
     public ResetPasswordResponse verifyCodeAndResetPassword(@Valid @RequestBody VerifyCodeRequest request) {
         return memberService.verifyCodeAndResetPassword(request);
+    }
+
+    // 비밀번호 변경 - 현재 비밀번호 확인
+    @PostMapping("/change-password/check-current")
+    public CurrentPasswordResponse checkCurrentPassword(@Valid @RequestBody CurrentPasswordRequest request) {
+        boolean isValid = memberService.checkCurrentPassword(request);
+        return new CurrentPasswordResponse(isValid);
+    }
+
+    // 비밀번호 변경 - 새 비밀번호로 변경
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody NewPasswordRequest request) {
+        memberService.changePassword(request);
+        return ResponseEntity.ok("비밀번호가 변경되었습니다.");
     }
 }
