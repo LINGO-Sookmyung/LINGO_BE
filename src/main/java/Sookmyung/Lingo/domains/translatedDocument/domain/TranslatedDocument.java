@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.domains;
+package Sookmyung.Lingo.domains.translatedDocument.domain;
 
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
 import jakarta.persistence.*;

@@ -1,6 +1,6 @@
 package Sookmyung.Lingo.domains.rawDocument.domain;
 
-import Sookmyung.Lingo.domains.OcrResult;
+import Sookmyung.Lingo.domains.translatedDocument.domain.OcrResult;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
