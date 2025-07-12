@@ -26,8 +26,12 @@ public class RawDocumentService {
 
 	@Transactional
 	public RawDocument saveRawDocument(RawDocumentRequestDTO dto, List<String> imageUrls, Member member) {
+
+		if (imageUrls == null || imageUrls.isEmpty()) {
+			throw new CustomException(ErrorCode.NO_FILE_UPLOADED);
+		}
 		if (!dto.getTotalPages().equals((long) imageUrls.size())) {
-			throw new CustomException(ErrorCode.FILE_TOTAL_PAGE_MISMATCH); // 커스텀 예외
+			throw new CustomException(ErrorCode.FILE_TOTAL_PAGE_MISMATCH);
 		}
 		RawDocument rawDocument = dto.toEntity(member);
 
