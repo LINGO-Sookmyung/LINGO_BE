@@ -19,7 +19,8 @@ public class TranslatedDocumentResponseDTO {
 
 	private Long translatedDocumentId;
 	private String translatedDocumentName;
-	private String translatedFileUrl;
+	private String translatedFilePath;
+	private String presignedDownloadUrl;
 
 	public static TranslatedDocumentResponseDTO from(RawDocument rawDocument) {
 		TranslatedDocument translated = rawDocument.getTranslatedDocument();
@@ -30,7 +31,7 @@ public class TranslatedDocumentResponseDTO {
 			.country(rawDocument.getCountry())
 			.translatedDocumentId(translated.getId())
 			.translatedDocumentName(translated.getTranslatedDocumentName())
-			.translatedFileUrl(translated.getTranslatedFilePath())
+			.translatedFilePath(translated.getTranslatedFilePath())
 			.build();
 	}
 }
