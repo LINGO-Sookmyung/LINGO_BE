@@ -33,7 +33,9 @@ public enum ErrorCode {
     NOT_EXISTS_VERIFICATION_CODE(HttpStatus.NOT_FOUND, "E-003", "인증 코드가 존재하지 않습니다."),
     //F - file 파일 업로드 관련
     NO_FILE_UPLOADED(HttpStatus.BAD_REQUEST, "F-001", "업로드된 이미지가 없습니다."),
-    FILE_TOTAL_PAGE_MISMATCH(HttpStatus.BAD_REQUEST, "F-002", "총 페이지 수와 업로드된 이미지 수가 일치하지 않습니다.");
+    FILE_TOTAL_PAGE_MISMATCH(HttpStatus.BAD_REQUEST, "F-002", "총 페이지 수와 업로드된 이미지 수가 일치하지 않습니다."),
+    INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "F-003", "파일에 확장자가 없습니다."),
+    EMPTY_FILE_NAME(HttpStatus.BAD_REQUEST, "F-004", "파일 이름이 비어 있습니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode; // 커스텀 에러 코드 -> http status code만으로는 정학한 원인 파악이 어렵기 때문
