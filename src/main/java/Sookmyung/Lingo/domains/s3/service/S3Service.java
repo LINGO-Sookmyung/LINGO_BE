@@ -1,24 +1,25 @@
 package Sookmyung.Lingo.domains.s3.service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.MediaTypeFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 
+import Sookmyung.Lingo.common.exception.CustomException;
+import Sookmyung.Lingo.common.exception.ErrorCode;
+import Sookmyung.Lingo.domains.s3.dto.S3ResponseDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3Service {
@@ -27,45 +28,67 @@ public class S3Service {
 
 	private final AmazonS3 amazonS3;
 
-	public List<String> uploadFile(List<MultipartFile> multipartFiles){
-		List<String> fileNameList = new ArrayList<>();
+	private static final long PRESIGNED_URL_EXPIRATION_MINUTES = 3;
 
-		// forEach 구문을 통해 multipartFiles 리스트로 넘어온 파일들을 순차적으로 fileNameList 에 추가
-		multipartFiles.forEach(file -> {
-			String fileName = createFileName(file.getOriginalFilename());
-			ObjectMetadata objectMetadata = new ObjectMetadata();
-			objectMetadata.setContentLength(file.getSize());
-			objectMetadata.setContentType(file.getContentType());
 
-			try(InputStream inputStream = file.getInputStream()){
-				amazonS3.putObject(new PutObjectRequest(bucket, fileName, inputStream, objectMetadata));
-			} catch (IOException e){
-				throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드에 실패했습니다.");
-			}
-			fileNameList.add(fileName);
+	//업로드
+	public S3ResponseDTO getPresignedUrlToUpload(String fileName) {
+		validateFileName(fileName);
 
-		});
+		String uuidFileName = UUID.randomUUID().toString() + getFileExtension(fileName);
 
-		return fileNameList;
+		// 폴더 경로 + 파일명
+		String s3Key = "origin/" + uuidFileName;
+
+		return S3ResponseDTO.builder()
+			.path(generatePresignedUrl(s3Key, HttpMethod.PUT, PRESIGNED_URL_EXPIRATION_MINUTES))
+			.s3Key(s3Key) // 실제 저장된 S3 경로
+			.build();
 	}
 
-	// 파일명을 난수화하기 위해 UUID 를 활용하여 난수를 돌린다.
-	public String createFileName(String fileName){
-		return UUID.randomUUID().toString().concat(getFileExtension(fileName));
+	//다운로드
+	public S3ResponseDTO getPresignedUrlToDownload(String fileName) {
+		validateFileName(fileName);
+
+		return S3ResponseDTO.builder()
+			.path(generatePresignedUrl(fileName, HttpMethod.GET, PRESIGNED_URL_EXPIRATION_MINUTES))
+			.build();
 	}
 
-	//  "."의 존재 유무만 판단
-	private String getFileExtension(String fileName){
-		try{
-			return fileName.substring(fileName.lastIndexOf("."));
-		} catch (StringIndexOutOfBoundsException e){
-			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "잘못된 형식의 파일" + fileName + ") 입니다.");
+	//공통
+	private String generatePresignedUrl(String fileName, HttpMethod method, long minutes) {
+		Date expiration = new Date(System.currentTimeMillis() + TimeUnit.MINUTES.toMillis(minutes));
+
+		String contentType = MediaTypeFactory
+			.getMediaType(fileName)
+			.map(MediaType::toString)
+			.orElse("application/octet-stream");
+
+		GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(bucket, fileName)
+			.withMethod(method)
+			.withExpiration(expiration);
+
+		if (method == HttpMethod.PUT) {
+			request.setContentType(contentType);
+		}
+		return amazonS3.generatePresignedUrl(request).toString();
+	}
+
+	private String getFileExtension(String fileName) {
+		int lastDotIndex = fileName.lastIndexOf(".");
+		if (lastDotIndex == -1) {
+			throw new CustomException(ErrorCode.INVALID_FILE_EXTENSION);
+		}
+		return fileName.substring(lastDotIndex);
+	}
+
+	//유효성 검사
+	private void validateFileName(String fileName) {
+		if (fileName == null || fileName.trim().isEmpty()) {
+			throw new CustomException(ErrorCode.EMPTY_FILE_NAME);
 		}
 	}
 
 
-	public void deleteFile(String fileName){
-		amazonS3.deleteObject(new DeleteObjectRequest(bucket, fileName));
-		System.out.println(bucket);
-	}
+
 }
