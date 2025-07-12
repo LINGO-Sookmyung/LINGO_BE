@@ -39,7 +39,7 @@ public class S3Controller {
 		return s3Service.getPresignedUrlToDownload(fileName);
 	}
 
-	@PostMapping("/upload-urls")
+	@PostMapping("/presigned/upload-urls")
 	public ResponseEntity<DataResponse<List<S3ResponseDTO>>> getPresignedUrls(
 		@RequestBody List<String> originalFileNames
 	) {
