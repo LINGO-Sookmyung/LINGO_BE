@@ -58,7 +58,7 @@ public class MemberController {
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = jwtTokenProvider.resolveToken(request);
         memberService.logout(token);
-        return ResponseEntity.ok("로그아웃 되었습니다.");
+        return ResponseEntity.ok(new SimpleResponse("로그아웃 되었습니다."));
     }
 
     // 토큰 재발급
@@ -82,7 +82,7 @@ public class MemberController {
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         // 이메일로 인증 코드 전송
         memberService.sendVerifyCodeEmail(request);
-        return ResponseEntity.ok("인증 코드가 이메일로 전송되었습니다.");
+        return ResponseEntity.ok(new SimpleResponse("인증 코드가 이메일로 전송되었습니다."));
     }
 
     // 2. 인증코드 검증 및 재발급
@@ -102,6 +102,9 @@ public class MemberController {
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody NewPasswordRequest request) {
         memberService.changePassword(request);
-        return ResponseEntity.ok("비밀번호가 변경되었습니다.");
+        return ResponseEntity.ok(new SimpleResponse("비밀번호가 변경되었습니다."));
+    }
+
+    private record SimpleResponse(String message) {
     }
 }
