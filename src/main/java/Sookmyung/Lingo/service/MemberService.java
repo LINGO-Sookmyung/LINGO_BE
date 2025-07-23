@@ -207,6 +207,8 @@ public class MemberService {
 
     // 인증 코드 검증 및 비밀번호 재설정
     public ResetPasswordResponse verifyCodeAndResetPassword(VerifyCodeRequest request) {
+        memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
         // 1. Redis에서 인증 코드 조회
         String storedCode = redisTemplate.opsForValue().get("verifyCode:" + request.getEmail());
         if (storedCode == null || !storedCode.equals(request.getVerificationCode())) {
