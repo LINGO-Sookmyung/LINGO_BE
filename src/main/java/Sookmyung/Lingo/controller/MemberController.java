@@ -10,6 +10,8 @@ import Sookmyung.Lingo.dto.login.LoginResponse;
 import Sookmyung.Lingo.dto.resetPassword.ResetPasswordRequest;
 import Sookmyung.Lingo.dto.resetPassword.ResetPasswordResponse;
 import Sookmyung.Lingo.dto.resetPassword.VerifyCodeRequest;
+import Sookmyung.Lingo.dto.signup.CheckEmailRequest;
+import Sookmyung.Lingo.dto.signup.CheckEmailResponse;
 import Sookmyung.Lingo.dto.signup.SignupRequest;
 import Sookmyung.Lingo.dto.signup.SignupResponse;
 import Sookmyung.Lingo.jwt.JwtTokenProvider;
@@ -39,9 +41,9 @@ public class MemberController {
     }
 
     // 중복 이메일 확인
-    @GetMapping("/check-email")
-    public boolean checkEmailDuplicate(@RequestParam String email) {
-        return memberService.isEmailDuplicate(email);
+    @PostMapping("/check-email")
+    public CheckEmailResponse checkEmailDuplicate(@Valid @RequestBody CheckEmailRequest request) {
+        return memberService.isEmailDuplicate(request.getEmail());
     }
 
     // 로그인

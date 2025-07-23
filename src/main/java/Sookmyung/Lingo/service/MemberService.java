@@ -12,6 +12,7 @@ import Sookmyung.Lingo.dto.login.LoginResponse;
 import Sookmyung.Lingo.dto.resetPassword.ResetPasswordRequest;
 import Sookmyung.Lingo.dto.resetPassword.ResetPasswordResponse;
 import Sookmyung.Lingo.dto.resetPassword.VerifyCodeRequest;
+import Sookmyung.Lingo.dto.signup.CheckEmailResponse;
 import Sookmyung.Lingo.dto.signup.SignupRequest;
 import Sookmyung.Lingo.dto.signup.SignupResponse;
 import Sookmyung.Lingo.jwt.JwtToken;
@@ -24,6 +25,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -45,7 +47,7 @@ public class MemberService {
 
     // 회원가입 - 일반 유저
     public SignupResponse signup(SignupRequest request) {
-        if (isEmailDuplicate(request.getEmail())) {
+        if (memberRepository.existsByEmail(request.getEmail())) {
             throw new CustomException(ErrorCode.ALREADY_EXISTS_MEMBER_EMAIL);
         }
         if (!request.getPassword().equals(request.getPwConfirm())) {
@@ -61,17 +63,27 @@ public class MemberService {
         );
         memberRepository.save(member);
 
-        SignupResponse response = new SignupResponse();
-        response.setMemberId(member.getId());
-        response.setEmail(member.getEmail());
-        response.setName(member.getName());
-        response.setMessage("회원가입이 완료되었습니다.");
-        return response;
+        return SignupResponse.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .name(member.getName())
+                .message("회원가입이 완료되었습니다.")
+                .build();
     }
 
     // 이메일 중복 체크
-    public boolean isEmailDuplicate(String email) {
-        return memberRepository.existsByEmail(email);
+    public CheckEmailResponse isEmailDuplicate(String email) {
+        if (memberRepository.existsByEmail(email)) {
+            return CheckEmailResponse.builder()
+                    .isAvailable(false)
+                    .message("이미 사용 중인 이메일입니다.")
+                    .build();
+        } else {
+            return CheckEmailResponse.builder()
+                    .isAvailable(true)
+                    .message("사용 가능한 이메일입니다.")
+                    .build();
+        }
     }
 
     // 로그인
@@ -106,13 +118,11 @@ public class MemberService {
         );
 
         // 4. 로그인 성공 시 응답 객체 생성
-        LoginResponse response = LoginResponse.builder()
+        return LoginResponse.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
                 .jwtToken(jwtToken)
                 .build();
-
-        return response;
     }
 
     // 로그아웃
@@ -213,9 +223,9 @@ public class MemberService {
         memberRepository.save(member);
 
         // 4. 응답 객체 생성
-        ResetPasswordResponse response = new ResetPasswordResponse();
-        response.setNewPassword(newPassword);
-        return response;
+        return ResetPasswordResponse.builder()
+                .newPassword(newPassword)
+                .build();
     }
 
     private String createTempPassword() {

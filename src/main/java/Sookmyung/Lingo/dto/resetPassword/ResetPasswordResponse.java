@@ -1,8 +1,11 @@
 package Sookmyung.Lingo.dto.resetPassword;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ResetPasswordResponse {
     private String newPassword;
 }

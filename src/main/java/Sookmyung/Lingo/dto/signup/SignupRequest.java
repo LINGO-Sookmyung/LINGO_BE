@@ -5,11 +5,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDate;
 import java.util.Date;
 
-@Data
+@Getter
 public class SignupRequest {
     @Email(message = "이메일 형식이 잘못되었습니다.")
     @NotBlank

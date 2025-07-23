@@ -1,9 +1,10 @@
 package Sookmyung.Lingo.dto.changePassword;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
+@Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class CurrentPasswordResponse {
     private boolean isValid;
