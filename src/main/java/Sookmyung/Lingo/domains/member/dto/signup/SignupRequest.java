@@ -1,14 +1,14 @@
 package Sookmyung.Lingo.domains.member.dto.signup;
 
-import java.time.LocalDate;
-
 import Sookmyung.Lingo.domains.enums.MemberType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+import java.time.LocalDate;
+
+@Getter
 public class SignupRequest {
     @Email(message = "이메일 형식이 잘못되었습니다.")
     @NotBlank

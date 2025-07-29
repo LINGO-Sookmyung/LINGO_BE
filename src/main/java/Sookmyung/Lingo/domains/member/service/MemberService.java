@@ -2,22 +2,25 @@ package Sookmyung.Lingo.domains.member.service;
 
 import Sookmyung.Lingo.common.exception.CustomException;
 import Sookmyung.Lingo.common.exception.ErrorCode;
-import Sookmyung.Lingo.domains.enums.MemberType;
+import Sookmyung.Lingo.common.jwt.JwtToken;
+import Sookmyung.Lingo.common.jwt.JwtTokenProvider;
+import Sookmyung.Lingo.common.util.AuthUtil;
 import Sookmyung.Lingo.domains.member.domain.Member;
-import Sookmyung.Lingo.domains.member.dto.findEmail.FindEmailRequest;
+import Sookmyung.Lingo.domains.enums.MemberType;
 import Sookmyung.Lingo.domains.member.dto.login.LoginRequest;
 import Sookmyung.Lingo.domains.member.dto.login.LoginResponse;
 import Sookmyung.Lingo.domains.member.dto.resetPassword.ResetPasswordRequest;
 import Sookmyung.Lingo.domains.member.dto.resetPassword.ResetPasswordResponse;
 import Sookmyung.Lingo.domains.member.dto.resetPassword.VerifyCodeRequest;
+import Sookmyung.Lingo.domains.member.dto.signup.CheckEmailResponse;
 import Sookmyung.Lingo.domains.member.dto.signup.SignupRequest;
 import Sookmyung.Lingo.domains.member.dto.signup.SignupResponse;
-import Sookmyung.Lingo.common.jwt.JwtToken;
-import Sookmyung.Lingo.common.jwt.JwtTokenProvider;
 import Sookmyung.Lingo.domains.member.repository.MemberRepository;
+import Sookmyung.Lingo.domains.member.dto.changePassword.CurrentPasswordRequest;
+import Sookmyung.Lingo.domains.member.dto.changePassword.NewPasswordRequest;
+import Sookmyung.Lingo.domains.member.dto.findEmail.FindEmailRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -39,10 +42,11 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RedisTemplate<String, String> redisTemplate;
     private final MailService mailService;
+    private final AuthUtil authUtil;
 
     // 회원가입 - 일반 유저
     public SignupResponse signup(SignupRequest request) {
-        if (isEmailDuplicate(request.getEmail())) {
+        if (memberRepository.existsByEmail(request.getEmail())) {
             throw new CustomException(ErrorCode.ALREADY_EXISTS_MEMBER_EMAIL);
         }
         if (!request.getPassword().equals(request.getPwConfirm())) {
@@ -58,17 +62,27 @@ public class MemberService {
         );
         memberRepository.save(member);
 
-        SignupResponse response = new SignupResponse();
-        response.setMemberId(member.getId());
-        response.setEmail(member.getEmail());
-        response.setName(member.getName());
-        response.setMessage("회원가입이 완료되었습니다.");
-        return response;
+        return SignupResponse.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .name(member.getName())
+                .message("회원가입이 완료되었습니다.")
+                .build();
     }
 
     // 이메일 중복 체크
-    public boolean isEmailDuplicate(String email) {
-        return memberRepository.existsByEmail(email);
+    public CheckEmailResponse isEmailDuplicate(String email) {
+        if (memberRepository.existsByEmail(email)) {
+            return CheckEmailResponse.builder()
+                    .isAvailable(false)
+                    .message("이미 사용 중인 이메일입니다.")
+                    .build();
+        } else {
+            return CheckEmailResponse.builder()
+                    .isAvailable(true)
+                    .message("사용 가능한 이메일입니다.")
+                    .build();
+        }
     }
 
     // 로그인
@@ -103,13 +117,11 @@ public class MemberService {
         );
 
         // 4. 로그인 성공 시 응답 객체 생성
-        LoginResponse response = LoginResponse.builder()
+        return LoginResponse.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
                 .jwtToken(jwtToken)
                 .build();
-
-        return response;
     }
 
     // 로그아웃
@@ -194,6 +206,8 @@ public class MemberService {
 
     // 인증 코드 검증 및 비밀번호 재설정
     public ResetPasswordResponse verifyCodeAndResetPassword(VerifyCodeRequest request) {
+        memberRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND_MEMBER));
         // 1. Redis에서 인증 코드 조회
         String storedCode = redisTemplate.opsForValue().get("verifyCode:" + request.getEmail());
         if (storedCode == null || !storedCode.equals(request.getVerificationCode())) {
@@ -210,9 +224,9 @@ public class MemberService {
         memberRepository.save(member);
 
         // 4. 응답 객체 생성
-        ResetPasswordResponse response = new ResetPasswordResponse();
-        response.setNewPassword(newPassword);
-        return response;
+        return ResetPasswordResponse.builder()
+                .newPassword(newPassword)
+                .build();
     }
 
     private String createTempPassword() {
@@ -229,5 +243,31 @@ public class MemberService {
             }
         }
         return key.toString();
+    }
+
+    // 비밀번호 변경 - 현재 비밀번호 확인
+    public boolean checkCurrentPassword(CurrentPasswordRequest request) {
+        Member member = authUtil.getCurrentMember();
+        if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
+            return false; // 현재 비밀번호가 일치하지 않으면 false 반환
+        }
+        return true; // 현재 비밀번호가 일치하면 true 반환
+    }
+
+    // 비밀번호 변경 - 새 비밀번호로 변경
+    public void changePassword(NewPasswordRequest request) {
+        Member member = authUtil.getCurrentMember();
+
+        // 새 비밀번호와 확인 비밀번호가 일치하는지 확인
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
+            throw new CustomException(ErrorCode.NOT_MATCH_PASSWORD_CONFIRM);
+        }
+
+        // 새 비밀번호 암호화
+        String encodedNewPassword = passwordEncoder.encode(request.getNewPassword());
+
+        // 비밀번호 변경
+        member.updatePassword(encodedNewPassword);
+        memberRepository.save(member);
     }
 }

@@ -1,12 +1,11 @@
 package Sookmyung.Lingo.domains.member.dto.login;
 
 import Sookmyung.Lingo.common.jwt.JwtToken;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Getter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class LoginResponse {
     private Long memberId;

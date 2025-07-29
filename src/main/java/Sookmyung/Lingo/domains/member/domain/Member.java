@@ -95,4 +95,8 @@ public class Member {
     public void setTempPassword(String tempPassword) {
         this.password = tempPassword;
     }
+
+    public void updatePassword(String newPassword) {
+        this.password = newPassword;
+    }
 }

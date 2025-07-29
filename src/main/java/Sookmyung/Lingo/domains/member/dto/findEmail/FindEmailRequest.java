@@ -2,9 +2,9 @@ package Sookmyung.Lingo.domains.member.dto.findEmail;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class FindEmailRequest {
     @NotBlank(message = "이름은 필수 항목입니다.")
     String name;

@@ -2,9 +2,9 @@ package Sookmyung.Lingo.domains.member.dto.resetPassword;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 public class ResetPasswordRequest {
     @NotBlank(message = "이름은 필수 항목입니다.")
     private String name;
