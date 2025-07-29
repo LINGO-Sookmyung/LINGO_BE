@@ -1,8 +1,8 @@
-package Sookmyung.Lingo.jwt;
+package Sookmyung.Lingo.common.jwt;
 
-import Sookmyung.Lingo.common.CustomException;
-import Sookmyung.Lingo.common.ErrorCode;
-import Sookmyung.Lingo.common.ErrorResponse;
+import Sookmyung.Lingo.common.dto.ErrorResponse;
+import Sookmyung.Lingo.common.exception.CustomException;
+import Sookmyung.Lingo.common.exception.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
