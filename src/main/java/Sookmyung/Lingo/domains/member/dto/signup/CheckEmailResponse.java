@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.dto.signup;
+package Sookmyung.Lingo.domains.member.dto.signup;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

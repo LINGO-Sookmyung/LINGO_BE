@@ -2,7 +2,6 @@ package Sookmyung.Lingo.domains.member.dto.login;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

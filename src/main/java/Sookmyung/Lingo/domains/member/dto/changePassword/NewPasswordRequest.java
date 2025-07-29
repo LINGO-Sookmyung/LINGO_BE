@@ -1,6 +1,5 @@
-package Sookmyung.Lingo.dto.changePassword;
+package Sookmyung.Lingo.domains.member.dto.changePassword;
 
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

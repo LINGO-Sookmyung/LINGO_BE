@@ -2,7 +2,6 @@ package Sookmyung.Lingo.domains.member.dto.resetPassword;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
 import lombok.Getter;
 
 @Getter

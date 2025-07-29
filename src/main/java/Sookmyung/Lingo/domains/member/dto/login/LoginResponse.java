@@ -1,6 +1,6 @@
-package Sookmyung.Lingo.dto.login;
+package Sookmyung.Lingo.domains.member.dto.login;
 
-import Sookmyung.Lingo.jwt.JwtToken;
+import Sookmyung.Lingo.common.jwt.JwtToken;
 import lombok.*;
 
 @Getter

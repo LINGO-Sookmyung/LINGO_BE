@@ -1,14 +1,12 @@
-package Sookmyung.Lingo.dto.signup;
+package Sookmyung.Lingo.domains.member.dto.signup;
 
-import Sookmyung.Lingo.domain.enums.MemberType;
+import Sookmyung.Lingo.domains.enums.MemberType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Data;
 import lombok.Getter;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Getter
 public class SignupRequest {

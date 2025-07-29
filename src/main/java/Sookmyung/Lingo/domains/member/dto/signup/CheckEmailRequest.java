@@ -1,4 +1,4 @@
-package Sookmyung.Lingo.dto.signup;
+package Sookmyung.Lingo.domains.member.dto.signup;
 
 
 import jakarta.validation.constraints.Email;
