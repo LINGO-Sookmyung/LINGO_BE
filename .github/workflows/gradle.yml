@@ -20,7 +20,7 @@ jobs:
     permissions:
       contents: read
 
-    env: # ✅ 여기에 secrets를 환경 변수로 주입
+    env: 
       DB_URL: ${{ secrets.DB_URL }}
       DB_USERNAME: ${{ secrets.DB_USERNAME }}
       DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
