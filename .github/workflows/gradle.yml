@@ -32,8 +32,8 @@ jobs:
 
     - name: Docker build & push
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/docker-test:latest .
-        docker push ${{ secrets.DOCKER_USERNAME }}/docker-test:latest
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/lingo-be-server:latest .
+        docker push ${{ secrets.DOCKER_USERNAME }}/lingo-be-server:latest
 
     - name: Deploy to EC2 via SSH (compose)
       uses: appleboy/ssh-action@v1.0.3
@@ -72,7 +72,7 @@ jobs:
               restart: unless-stopped
           
             application:
-              image: ${{ secrets.DOCKER_USERNAME }}/docker-test:latest
+              image: ${{ secrets.DOCKER_USERNAME }}/lingo-be-server:latest
               container_name: app
               env_file: .env
               depends_on:
