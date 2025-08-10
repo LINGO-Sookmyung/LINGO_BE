@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 	public static final String version = "v1.0.0";
 
-	@GetMapping("/")
+	@GetMapping("/api-docs/test")
 	public String home(){
 		return "cicd with docker. version"+ version;
 	}
