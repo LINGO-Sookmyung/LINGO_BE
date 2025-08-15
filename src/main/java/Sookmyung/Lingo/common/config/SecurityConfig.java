@@ -3,6 +3,8 @@ package Sookmyung.Lingo.common.config;
 import Sookmyung.Lingo.common.jwt.JwtAuthenticationFilter;
 import Sookmyung.Lingo.common.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,7 +20,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -44,8 +47,8 @@ public class SecurityConfig {
         );
 
         http.addFilterBefore(
-                new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate),
-                UsernamePasswordAuthenticationFilter.class
+            new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate),
+            UsernamePasswordAuthenticationFilter.class
         );
 
         return http.build();
