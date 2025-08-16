@@ -33,6 +33,7 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'io.github.cdimascio:java-dotenv:5.2.2'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	// Spring Security 설정
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.security:spring-security-test'
@@ -56,6 +57,7 @@ dependencies {
 	implementation 'org.apache.pdfbox:pdfbox:2.0.27'
 	//mysql
 	implementation 'mysql:mysql-connector-java:8.0.33'
+
 }
 
 tasks.named('test') {
