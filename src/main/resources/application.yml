@@ -82,6 +82,10 @@ cloud:
 jwt:
   secret: ${JWT_SECRET}
 
+fastapi:
+  base-url: ${FASTAPI_BASE_URL}
+  timeout-millis: ${FASTAPI_TIMEOUT_MILLIS}
+
 ---
 
 # ===============================
