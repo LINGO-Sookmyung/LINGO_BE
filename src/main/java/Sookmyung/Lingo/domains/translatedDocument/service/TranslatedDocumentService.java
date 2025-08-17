@@ -4,8 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import Sookmyung.Lingo.domains.rawDocument.repository.RawDocumentRepository;
 import Sookmyung.Lingo.domains.s3.service.S3Service;
 import Sookmyung.Lingo.domains.translatedDocument.domain.TranslatedDocument;
 import Sookmyung.Lingo.domains.translatedDocument.dto.TranslatedDocumentResponseDTO;
@@ -17,6 +15,7 @@ public class TranslatedDocumentService {
 
 	private final TranslatedDocumentRepository translatedDocumentRepository;
 	private final S3Service s3Service;
+
 
 	@Autowired
 	public TranslatedDocumentService(TranslatedDocumentRepository translatedDocumentRepository, S3Service s3Service) {
