@@ -27,41 +27,22 @@ public class S3Controller {
 
 	private final S3Service s3Service;
 
-	@Operation(summary = "Upload용 Presigned URL 생성", description = "업로드를 위한 Presigned URL을 생성한다")
-	@GetMapping("/presigned/upload")
-	public S3ResponseDTO getPresignedUrlToUpload(@RequestParam(value = "filename") String fileName) throws IOException {
-		return s3Service.getPresignedUrlToUpload(fileName);
-	}
-
 	@Operation(summary = "Download용 Presigned URL 생성", description = "다운로드를 위한 Presigned URL을 생성한다")
 	@GetMapping("/presigned/download")
 	public S3ResponseDTO getPresignedUrlToDownload(@RequestParam(value = "filename") String fileName) throws IOException {
 		return s3Service.getPresignedUrlToDownload(fileName);
 	}
 
+	@Operation(summary = "Upload용 Presigned URL 생성", description = "업로드를 위한 Presigned URL을 생성한다")
 	@PostMapping("/presigned/upload-urls")
 	public ResponseEntity<DataResponse<List<S3ResponseDTO>>> getPresignedUrls(
 		@RequestBody List<String> originalFileNames
 	) {
 		List<S3ResponseDTO> urls = originalFileNames.stream()
-			.map(fileName -> {
-				String uuidFileName = "origin/" + UUID.randomUUID() + getExtension(fileName);
-				return S3ResponseDTO.builder()
-					.path(s3Service.getPresignedUrlToUpload(uuidFileName).getPath())
-					.s3Key(uuidFileName)
-					.build();
-			})
+			.map(s3Service::getPresignedUrlToUpload)
 			.toList();
 
 		return ResponseEntity.ok(DataResponse.of(urls, "Presigned URL 생성"));
-	}
-
-	private String getExtension(String fileName) {
-		int lastDotIndex = fileName.lastIndexOf(".");
-		if (lastDotIndex == -1) {
-			throw new CustomException(ErrorCode.INVALID_FILE_EXTENSION);
-		}
-		return fileName.substring(lastDotIndex);
 	}
 
 }
