@@ -160,6 +160,7 @@ public class TranslatedDocumentService {
 			case ENGLISH -> "english";
 			case JAPANESE -> "japanese";
 			case CHINESE -> "chinese";
+			case VIETNAMESE -> "vietnamese";
 			default -> "english"; // 기본값
 		};
 	}
