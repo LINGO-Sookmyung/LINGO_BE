@@ -157,10 +157,10 @@ public class TranslatedDocumentService {
 	private String mapLanguageForFastApi(Language language) {
 		// FastAPI가 "english"같은 소문자 문자열을 기대하면 이런 식으로 매핑
 		return switch (language) {
-			case ENGLISH -> "english";
-			case JAPANESE -> "japanese";
-			case CHINESE -> "chinese";
-			case VIETNAMESE -> "vietnamese";
+			case ENGLISH -> "영어";
+			case JAPANESE -> "일본어";
+			case CHINESE -> "중국어";
+			case VIETNAMESE -> "베트남어";
 			default -> "english"; // 기본값
 		};
 	}
