@@ -89,4 +89,29 @@ public class RawDocumentController {
 		TranslatedDocumentResultDTO translatedDocumentResultDTO = translatedDocumentService.translateAndSave(saved);
 		return ResponseEntity.ok(translatedDocumentResultDTO);
 	}
+
+	@Operation(
+		summary = "부동산등기부등본 원본 문서 등록 - Presigned URL 방식",
+		description = "문서 파일은 사전에 Presigned URL로 업로드하고, S3 경로와 함께 문서 DTO를 전송",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "등록 성공",
+				content = @Content(schema = @Schema(implementation = DataResponse.class))),
+			@ApiResponse(responseCode = "400", description = "요청 에러",
+				content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+		}
+	)
+	@PostMapping(value = "/real-estate-registry", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<TranslatedDocumentResultDTO> registerRealEstateRegistry(
+		@RequestBody RawDocumentUploadRequestDTO uploadRequest
+	) {
+		Member member = getCurrentMemberOrNull();
+
+		RawDocument saved = rawDocumentService.saveRawDocument(
+			uploadRequest.getRequestDTO(),
+			uploadRequest.getFileNames(),
+			member
+		);
+		TranslatedDocumentResultDTO translatedDocumentResultDTO = translatedDocumentService.translateAndSave(saved);
+		return ResponseEntity.ok(translatedDocumentResultDTO);
+	}
 }
