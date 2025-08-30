@@ -1,5 +1,10 @@
 package Sookmyung.Lingo.domains.translatedDocument.service;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +21,8 @@ import Sookmyung.Lingo.domains.enums.Language;
 import Sookmyung.Lingo.domains.rawDocument.domain.RawDocument;
 import Sookmyung.Lingo.domains.s3.service.S3Service;
 import Sookmyung.Lingo.domains.translatedDocument.domain.TranslatedDocument;
+import Sookmyung.Lingo.domains.translatedDocument.dto.TranslateApiResponseDTO;
+import Sookmyung.Lingo.domains.translatedDocument.dto.TranslateResultDTO;
 import Sookmyung.Lingo.domains.translatedDocument.dto.TranslatedDocumentResponseDTO;
 import Sookmyung.Lingo.domains.translatedDocument.dto.TranslatedDocumentResultDTO;
 import Sookmyung.Lingo.domains.translatedDocument.repository.TranslatedDocumentRepository;
@@ -48,28 +55,34 @@ public class TranslatedDocumentService {
 	}
 
 	@Transactional
-	public TranslatedDocumentResultDTO translateAndSave(RawDocument rawDocument) {
-
-		// 1) 원본 이미지들: pageNumber 순으로 정렬 + S3 URI로 변환
+	public TranslateApiResponseDTO preparePreview(RawDocument rawDocument) {
 		List<String> s3Uris = rawDocument.getRawDocumentImages().stream()
 			.sorted(Comparator.comparingLong(img -> img.getPageNumber()))
-			.map(img -> toS3Uri(bucket, img.getRawFilePath()))  // <- 여기!
+			.map(img -> toS3Uri(bucket, img.getRawFilePath()))
 			.toList();
 
-		//fastAPI 호출
 		String docType = mapDocTypeForFastApi(rawDocument.getDocumentType());
+		String jsonForTranslate = callBinarizeAndOcrMulti(s3Uris, docType);
 
-		//binarize-and-ocr-multi
-		String ocrOrGptJsonPath = callBinarizeAndOcrMulti(s3Uris, docType);
-
-		//translate
 		String lang = mapLanguageForFastApi(rawDocument.getLanguage());
-		String translatedJsonPath = callTranslate(ocrOrGptJsonPath, lang);
+		var tr = callTranslate(jsonForTranslate, lang);
 
-		//generate-doc
-		byte[] docxBytes = callGenerateDoc(docType, translatedJsonPath, /*ocr_path*/ "", lang);
+		return new TranslateApiResponseDTO(
+			rawDocument.getId(),
+			docType,
+			lang,
+			tr.path(),
+			tr.result()
+		);
+	}
 
-		//S3 업로드
+	@Transactional
+	public TranslatedDocumentResultDTO finalizeAndSave(RawDocument rawDocument, String editedContentJson) {
+		String docType = mapDocTypeForFastApi(rawDocument.getDocumentType());
+		String lang = mapLanguageForFastApi(rawDocument.getLanguage());
+
+		byte[] docxBytes = callGenerateDocFromContentJson(docType, editedContentJson, lang);
+
 		String resultS3Key = s3Service.uploadTranslatedDocx(docxBytes);
 
 		TranslatedDocument translated = TranslatedDocument.builder()
@@ -91,6 +104,21 @@ public class TranslatedDocumentService {
 			.build();
 	}
 
+	private byte[] callGenerateDocFromContentJson(String docType, String contentJson, String lang) {
+		Path tmp = null;
+		try {
+			tmp = Files.createTempFile("translated-edit-", ".json");
+			Files.writeString(tmp, contentJson, StandardCharsets.UTF_8);
+
+			return callGenerateDoc(docType, tmp.toString(), /*ocr_path*/ "", lang);
+		} catch (IOException e) {
+			throw new UncheckedIOException("Failed to write temp JSON for generate-doc", e);
+		} finally {
+			if (tmp != null) {
+				try { Files.deleteIfExists(tmp); } catch (IOException ignore) {}
+			}
+		}
+	}
 
 	//이진화
 	private String callBinarizeAndOcrMulti(List<String> imagePaths, String docType) {
@@ -111,7 +139,7 @@ public class TranslatedDocumentService {
 		return String.valueOf(res.get("path"));
 	}
 	//번역
-	private String callTranslate(String jsonPath, String lang) {
+	private TranslateResultDTO callTranslate(String jsonPath, String lang) {
 		var req = Map.of("json_path", jsonPath, "lang", lang);
 
 		Map<String, Object> res = fastApiWebClient.post()
@@ -126,7 +154,11 @@ public class TranslatedDocumentService {
 		if (res == null || res.get("path") == null) {
 			throw new IllegalStateException("FastAPI 응답에 path가 없습니다.");
 		}
-		return String.valueOf(res.get("path"));
+
+		String path = String.valueOf(res.get("path"));
+		Object result = res.get("result");
+
+		return new TranslateResultDTO(path, result);
 	}
 
 	//문서 생성
@@ -167,12 +199,11 @@ public class TranslatedDocumentService {
 
 	private String mapDocTypeForFastApi(DocumentType type) {
 		// FastAPI가 "재학증명서" 같은 한글 문자열을 기대한다면 여기서 매핑
-		// 서버 스펙에 맞게 반드시 수정
 		return switch (type) {
 			case ENROLLMENT_CERTIFICATE -> "재학증명서";
 			case FAMILY_RELATIONSHIP_CERTIFICATE -> "가족관계증명서";
 			case REAL_ESTATE_REGISTRY -> "부동산등기부등본";
-			default -> type.name(); // 서버가 영문 enum도 허용하면 그대로
+			default -> type.name();
 		};
 	}
 
