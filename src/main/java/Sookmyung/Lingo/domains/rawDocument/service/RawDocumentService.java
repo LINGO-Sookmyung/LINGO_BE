@@ -25,19 +25,19 @@ public class RawDocumentService {
 	}
 
 	@Transactional
-	public RawDocument saveRawDocument(RawDocumentRequestDTO dto, List<String> imageUrls, Member member) {
+	public RawDocument saveRawDocument(RawDocumentRequestDTO rawDocumentRequestDTO, List<String> imageUrls, Member member) {
 
 		if (imageUrls == null || imageUrls.isEmpty()) {
 			throw new CustomException(ErrorCode.NO_FILE_UPLOADED);
 		}
-		if (!dto.getTotalPages().equals((long) imageUrls.size())) {
+		if (!rawDocumentRequestDTO.getTotalPages().equals((long) imageUrls.size())) {
 			throw new CustomException(ErrorCode.FILE_TOTAL_PAGE_MISMATCH);
 		}
-		RawDocument rawDocument = dto.toEntity(member);
+		RawDocument rawDocument = rawDocumentRequestDTO.toEntity(member);
 
 		for (int i = 0; i < imageUrls.size(); i++) {
 			RawDocumentImage image = RawDocumentImage.builder()
-				.rawFilename("original_" + (i + 1)) // 필요시 MultipartFile의 원래 이름 저장도 고려
+				.rawFilename("original_" + (i + 1))
 				.pageNumber((long) (i + 1)) // 페이지 번호
 				.rawFilePath(imageUrls.get(i)) // S3 URL
 				.build();
@@ -46,5 +46,11 @@ public class RawDocumentService {
 		}
 
 		return rawDocumentRepository.save(rawDocument);
+	}
+
+	public RawDocument getOrThrow(Long id) {
+		return rawDocumentRepository.findById(id)
+			.orElseThrow(() ->
+				new CustomException(ErrorCode.NOT_FOUND_RAW_DOCUMENT));
 	}
 }

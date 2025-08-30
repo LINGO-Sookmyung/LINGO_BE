@@ -3,6 +3,8 @@ package Sookmyung.Lingo.common.config;
 import Sookmyung.Lingo.common.jwt.JwtAuthenticationFilter;
 import Sookmyung.Lingo.common.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,7 +20,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
+
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -38,14 +41,14 @@ public class SecurityConfig {
         // H2 콘솔 접근 허용
         http.authorizeHttpRequests(authz -> authz
                 .requestMatchers("/h2-console/**","/favicon.ico").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
-                .requestMatchers("/api-docs", "/swagger-ui.html", "/api-docs/**", "/swagger-ui/**", "/v3/api-docs/**","/api/test/**").permitAll() // 스웨거 인증 없이 접근 허용
+                .requestMatchers("/api/**","/api-docs", "/swagger-ui.html", "/api-docs/**", "/swagger-ui/**", "/v3/api-docs/**","/api/test/**").permitAll() // 스웨거 인증 없이 접근 허용
 			    .requestMatchers("/member/**", "/member/reset-password/**").permitAll() // 임시 접근 허용
                 .anyRequest().authenticated()  // 나머지 요청은 인증 필요
         );
 
         http.addFilterBefore(
-                new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate),
-                UsernamePasswordAuthenticationFilter.class
+            new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate),
+            UsernamePasswordAuthenticationFilter.class
         );
 
         return http.build();

@@ -11,6 +11,6 @@ import lombok.Setter;
 @Builder
 public class S3ResponseDTO {
 
-	private String path;    // Presigned URL
-	private String s3Key;   // 실제 저장 경로 (예: original/uuid.pdf)
+	private String path;
+	private String s3Key;
 }

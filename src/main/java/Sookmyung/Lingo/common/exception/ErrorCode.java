@@ -35,7 +35,13 @@ public enum ErrorCode {
     NO_FILE_UPLOADED(HttpStatus.BAD_REQUEST, "F-001", "업로드된 이미지가 없습니다."),
     FILE_TOTAL_PAGE_MISMATCH(HttpStatus.BAD_REQUEST, "F-002", "총 페이지 수와 업로드된 이미지 수가 일치하지 않습니다."),
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "F-003", "파일에 확장자가 없습니다."),
-    EMPTY_FILE_NAME(HttpStatus.BAD_REQUEST, "F-004", "파일 이름이 비어 있습니다.");
+    EMPTY_FILE_NAME(HttpStatus.BAD_REQUEST, "F-004", "파일 이름이 비어 있습니다."),
+
+    // D - document 관련 에러 코드
+    NOT_FOUND_RAW_DOCUMENT(HttpStatus.NOT_FOUND, "D-001", "존재하지 않는 원본 문서입니다."),
+    NOT_FOUND_TRANSLATED_DOCUMENT(HttpStatus.NOT_FOUND, "D-002", "존재하지 않는 번역 문서입니다."),
+    TRANSLATION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "D-003", "문서 번역에 실패했습니다."),
+    INVALID_DOCUMENT_TYPE(HttpStatus.BAD_REQUEST, "D-004", "잘못된 문서 유형입니다.");
 
     private final HttpStatus httpStatus;
     private final String errorCode; // 커스텀 에러 코드 -> http status code만으로는 정학한 원인 파악이 어렵기 때문

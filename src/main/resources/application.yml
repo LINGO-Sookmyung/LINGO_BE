@@ -1,3 +1,4 @@
+#프로필별 관리
 # ===============================
 # Local
 # ===============================
@@ -7,7 +8,7 @@ spring:
       on-profile: local
 
   datasource:
-    url: jdbc:h2:tcp://localhost/~/lingo
+    url: jdbc:h2:tcp://localhost/~/lingo2
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -53,8 +54,17 @@ spring:
 
 logging:
   level:
+    root: INFO
+    Sookmyung.Lingo: DEBUG
+    sookmyung.Lingo.domains.translatedDocument.service: DEBUG
+    Sookmyung.Lingo.domains.s3: DEBUG
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+    com.zaxxer.hikari: DEBUG
+    org.springframework.boot.context.config: TRACE   # ConfigData 로딩 경로/우선순위
+    org.springframework.boot.env: TRACE
+    reactor.netty.http.client: DEBUG
+    reactor.netty.transport: DEBUG
 
 springdoc:
   swagger-ui:
@@ -81,6 +91,11 @@ cloud:
 
 jwt:
   secret: ${JWT_SECRET}
+
+fastapi:
+  base-url: ${FASTAPI_BASE_URL:http://127.0.0.1:8000/}
+  timeout-millis: ${FASTAPI_TIMEOUT_MILLIS:15000}
+
 
 ---
 

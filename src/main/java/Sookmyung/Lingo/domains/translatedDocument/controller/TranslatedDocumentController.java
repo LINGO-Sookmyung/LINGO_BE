@@ -1,12 +1,10 @@
 package Sookmyung.Lingo.domains.translatedDocument.controller;
 
 import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import Sookmyung.Lingo.common.dto.ErrorResponse;
 import Sookmyung.Lingo.common.util.AuthUtil;
 import Sookmyung.Lingo.domains.member.domain.Member;
