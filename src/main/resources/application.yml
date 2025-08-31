@@ -181,3 +181,7 @@ cloud:
 
 jwt:
   secret: ${JWT_SECRET}
+
+fastapi:
+  base-url: ${FASTAPI_BASE_URL:http://127.0.0.1:8000/}
+  timeout-millis: ${FASTAPI_TIMEOUT_MILLIS:15000}
