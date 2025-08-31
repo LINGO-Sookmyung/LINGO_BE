@@ -1,10 +1,5 @@
 package Sookmyung.Lingo.domains.translatedDocument.service;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +10,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Sookmyung.Lingo.domains.enums.DocumentType;
 import Sookmyung.Lingo.domains.enums.Language;
@@ -104,20 +103,30 @@ public class TranslatedDocumentService {
 			.build();
 	}
 
-	private byte[] callGenerateDocFromContentJson(String docType, String contentJson, String lang) {
-		Path tmp = null;
-		try {
-			tmp = Files.createTempFile("translated-edit-", ".json");
-			Files.writeString(tmp, contentJson, StandardCharsets.UTF_8);
 
-			return callGenerateDoc(docType, tmp.toString(), /*ocr_path*/ "", lang);
-		} catch (IOException e) {
-			throw new UncheckedIOException("Failed to write temp JSON for generate-doc", e);
-		} finally {
-			if (tmp != null) {
-				try { Files.deleteIfExists(tmp); } catch (IOException ignore) {}
-			}
+	private byte[] callGenerateDocFromContentJson(String docType, String contentJson, String lang) {
+		ObjectMapper om = new ObjectMapper();
+		Map<String, Object> edited;
+		try {
+			edited = om.readValue(contentJson, new TypeReference<Map<String, Object>>() {});
+		} catch (JsonProcessingException e) {
+			throw new IllegalArgumentException("editedContentJson 파싱 실패", e); //테스트용으로 에러메세지
 		}
+
+		Map<String, Object> req = Map.of(
+			"doc_type", docType,
+			"lang",     lang,
+			"editedContentJson", edited
+		);
+
+		return fastApiWebClient.post()
+			.uri("/generate-doc")
+			.contentType(MediaType.APPLICATION_JSON)
+			.accept(MediaType.APPLICATION_OCTET_STREAM)
+			.bodyValue(req)
+			.retrieve()
+			.bodyToMono(byte[].class)
+			.block();
 	}
 
 	//이진화
