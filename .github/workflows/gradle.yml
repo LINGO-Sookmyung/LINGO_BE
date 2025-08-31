@@ -63,6 +63,8 @@ jobs:
           
           APP_PASSWORD=${{ secrets.APP_PASSWORD }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
+          FASTAPI_BASE_URL=${{ secrets.FASTAPI_BASE_URL }}
+          FASTAPI_TIMEOUT_MILLIS=${{ secrets.FASTAPI_TIMEOUT_MILLIS }}
           ENV
           
           cat > docker-compose.yml <<'YAML'
