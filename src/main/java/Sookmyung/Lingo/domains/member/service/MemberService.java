@@ -26,14 +26,18 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -148,9 +152,16 @@ public class MemberService {
     }
 
     // 토큰 재발급
-    public LoginResponse reissue(String accessToken, String refreshToken) {
-        // 1. AccessToken에서 사용자 이메일 추출 (만료돼도 parse 가능)
-        String email = jwtTokenProvider.getAuthentication(accessToken).getName();
+    public LoginResponse reissue(String refreshToken) {
+        if (refreshToken == null || refreshToken.isBlank()) {
+            throw new CustomException(ErrorCode.EMPTY_REFRESH_TOKEN);
+        }
+        // 0. RefreshToken 검증
+        if (!jwtTokenProvider.validateToken(refreshToken)) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
+        }
+        // 1. RefreshToken에서 사용자 이메일 추출
+        String email = jwtTokenProvider.getUserEmailFromRefresh(refreshToken);
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED_MEMBER));
 
@@ -162,8 +173,17 @@ public class MemberService {
             throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
-        // 4. 새 토큰 발급
-        Authentication authentication = jwtTokenProvider.getAuthentication(accessToken);
+        // 4. 새 토큰 발급 (Authentication 직접 생성)
+        List<GrantedAuthority> authorities = member.getRoles().stream()
+                .map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role))
+                .collect(Collectors.toList());
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                member.getEmail(),
+                null,
+                authorities
+        );
+
         JwtToken newToken = jwtTokenProvider.generateToken(authentication);
 
         // 5. RefreshToken Redis 갱신
