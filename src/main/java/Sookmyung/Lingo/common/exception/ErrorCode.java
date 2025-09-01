@@ -27,6 +27,9 @@ public enum ErrorCode {
     UNAUTHORIZED_TOKEN(HttpStatus.UNAUTHORIZED, "T-001", "유효하지 않은 토큰입니다."),
     INVALID_TOKEN_AUTHORITY(HttpStatus.FORBIDDEN, "T-002", "토큰 권한이 유효하지 않습니다."),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "T-003", "유효하지 않은 리프레시 토큰입니다."),
+    EXPIRED_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "T-004", "만료된 액세스 토큰입니다."),
+    EXPIRED_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "T-005", "만료된 리프레시 토큰입니다."),
+    EMPTY_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "T-006", "리프레시 토큰이 존재하지 않습니다."),
 
     // E - email 인증 관련 에러 코드
     EMAIL_SEND_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "E-001", "이메일 발송 중 오류가 발생했습니다."),
