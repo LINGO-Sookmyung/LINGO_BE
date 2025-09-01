@@ -21,6 +21,7 @@ public enum ErrorCode {
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND, "M-003", "일치하는 회원 정보를 찾을 수 없습니다."),
     NOT_MATCH_PASSWORD_CONFIRM(HttpStatus.BAD_REQUEST, "M-004", "비밀번호와 비밀번호 확인이 일치하지 않습니다."),
     UNAUTHORIZED_MEMBER(HttpStatus.UNAUTHORIZED, "M-005", "회원 인증 정보가 유효하지 않습니다."),
+    INVALID_MEMBER_LOGIN(HttpStatus.UNAUTHORIZED, "M-006", "아이디 또는 비밀번호가 일치하지 않습니다."),
 
     // T - token 관련 에러 코드
     UNAUTHORIZED_TOKEN(HttpStatus.UNAUTHORIZED, "T-001", "유효하지 않은 토큰입니다."),
