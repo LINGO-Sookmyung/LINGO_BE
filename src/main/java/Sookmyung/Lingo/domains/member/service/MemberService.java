@@ -157,7 +157,7 @@ public class MemberService {
             throw new CustomException(ErrorCode.EMPTY_REFRESH_TOKEN);
         }
         // 0. RefreshToken 검증
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
+        if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
         }
         // 1. RefreshToken에서 사용자 이메일 추출
@@ -175,7 +175,9 @@ public class MemberService {
 
         // 4. 새 토큰 발급 (Authentication 직접 생성)
         List<GrantedAuthority> authorities = member.getRoles().stream()
-                .map(role -> (GrantedAuthority) new SimpleGrantedAuthority(role))
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
                 .collect(Collectors.toList());
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
