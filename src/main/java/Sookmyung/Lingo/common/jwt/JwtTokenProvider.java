@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtTokenProvider {
     private final SecretKey key;
-    private final long accessTokenValidityInMilliseconds = 60 * 60 * 1000L; // 1시간
+    private final long accessTokenValidityInMilliseconds = 60 * 15 * 1000L; // 1시간
     private final long refreshTokenValidityInMilliseconds = 7 * 24 * 60 * 60 * 1000L; // 7일
 
     // application.yml에서 secret 값 가져와서 key에 저장
