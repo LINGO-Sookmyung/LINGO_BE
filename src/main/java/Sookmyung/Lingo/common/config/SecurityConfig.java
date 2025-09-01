@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -27,7 +28,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // CSRF 보호 비활성화
         http.csrf(csrf -> csrf.disable())
-        .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
+                .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
 
         // CORS 설정
         // http.cors(cors -> cors.disable()); // CORS 설정은 필요에 따라 활성화 http
@@ -40,15 +41,23 @@ public class SecurityConfig {
 
         // H2 콘솔 접근 허용
         http.authorizeHttpRequests(authz -> authz
-                .requestMatchers("/h2-console/**","/favicon.ico").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
-                .requestMatchers("/api/**","/api-docs", "/swagger-ui.html", "/api-docs/**", "/swagger-ui/**", "/v3/api-docs/**","/api/test/**").permitAll() // 스웨거 인증 없이 접근 허용
-			    .requestMatchers("/member/**", "/member/reset-password/**").permitAll() // 임시 접근 허용
+                .requestMatchers("/h2-console/**", "/favicon.ico").permitAll()  // H2 콘솔 경로는 인증 없이 접근 가능
+                .requestMatchers("/api/**", "/api-docs", "/swagger-ui.html", "/api-docs/**", "/swagger-ui/**", "/v3/api-docs/**", "/api/test/**").permitAll() // 스웨거 인증 없이 접근 허용
+                // 인증 없이 가능한 회원 관련 엔드포인트만 명시적으로 공개
+                .requestMatchers(HttpMethod.POST,
+                        "/member/login",
+                        "/member/signup",
+                        "/member/check-email",
+                        "/member/find-email",
+                        "/member/reset-password/**"   // send / verify 포함
+                ).permitAll()
+                .requestMatchers(HttpMethod.POST, "/member/reissue").permitAll()
                 .anyRequest().authenticated()  // 나머지 요청은 인증 필요
         );
 
         http.addFilterBefore(
-            new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate),
-            UsernamePasswordAuthenticationFilter.class
+                new JwtAuthenticationFilter(jwtTokenProvider, redisTemplate),
+                UsernamePasswordAuthenticationFilter.class
         );
 
         return http.build();
