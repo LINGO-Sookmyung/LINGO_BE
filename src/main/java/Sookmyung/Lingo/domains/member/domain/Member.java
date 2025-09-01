@@ -87,7 +87,7 @@ public class Member {
         member.birth = birth;
         member.phoneNum = phone_num;
         member.memberType = type;
-        member.roles.add("ROLE_" + type); // ROLE_USER or ROLE_ADMIN
+        member.roles.add(MemberType.USER.toString()); // 기본 권한 USER
 
         return member;
     }
