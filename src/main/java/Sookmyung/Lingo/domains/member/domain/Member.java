@@ -87,6 +87,7 @@ public class Member {
         member.birth = birth;
         member.phoneNum = phone_num;
         member.memberType = type;
+        member.roles.add("ROLE_" + type); // ROLE_USER or ROLE_ADMIN
 
         return member;
     }

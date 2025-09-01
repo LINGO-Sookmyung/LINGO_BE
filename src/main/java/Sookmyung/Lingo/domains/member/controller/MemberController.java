@@ -61,10 +61,8 @@ public class MemberController {
 
     // 토큰 재발급
     @PostMapping("/reissue")
-    public ResponseEntity<LoginResponse> reissue(HttpServletRequest request,
-                                                 @RequestBody ReissueRequest body) {
-        String accessToken = jwtTokenProvider.resolveToken(request);
-        return ResponseEntity.ok(memberService.reissue(accessToken, body.getRefreshToken()));
+    public ResponseEntity<LoginResponse> reissue(@Valid @RequestBody ReissueRequest request) {
+        return ResponseEntity.ok(memberService.reissue(request.getRefreshToken()));
     }
 
     // 아이디(이메일) 찾기

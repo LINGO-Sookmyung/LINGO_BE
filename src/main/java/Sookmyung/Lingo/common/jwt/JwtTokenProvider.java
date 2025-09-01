@@ -138,6 +138,43 @@ public class JwtTokenProvider {
         return null; // 토큰이 없으면 null 반환
     }
 
+    // 공통: Claims 파싱 (시크릿 선택)
+    private Claims parseClaims(String token, String secret) {
+        return Jwts.parser()
+                .setSigningKey(secret.getBytes())
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+    // 리프레시 토큰에서 이메일(subject) 추출
+    public String getUserEmailFromRefresh(String refreshToken) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody();
+            return claims.getSubject();
+        } catch (ExpiredJwtException e) {
+            throw new CustomException(ErrorCode.EXPIRED_REFRESH_TOKEN);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
+        }
+    }
+
+    // 리프레시 토큰 유효성 검증만 따로
+    public boolean validateRefreshToken(String refreshToken) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(refreshToken);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     public long getRefreshTokenExpiration() {
         return refreshTokenValidityInMilliseconds;
     }
