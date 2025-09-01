@@ -1,5 +1,7 @@
 package Sookmyung.Lingo.common.config;
 
+import Sookmyung.Lingo.common.exception.CustomAccessDeniedHandler;
+import Sookmyung.Lingo.common.exception.CustomAuthenticationEntryPoint;
 import Sookmyung.Lingo.common.jwt.JwtAuthenticationFilter;
 import Sookmyung.Lingo.common.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,9 @@ public class SecurityConfig {
 
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http,
+                                           CustomAuthenticationEntryPoint entryPoint,
+                                           CustomAccessDeniedHandler accessDeniedHandler) throws Exception {
         // CSRF 보호 비활성화
         http.csrf(csrf -> csrf.disable())
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()));
@@ -53,6 +57,12 @@ public class SecurityConfig {
                 ).permitAll()
                 .requestMatchers(HttpMethod.POST, "/member/reissue").permitAll()
                 .anyRequest().authenticated()  // 나머지 요청은 인증 필요
+        );
+
+        // 예외 처리
+        http.exceptionHandling(ex -> ex
+                .authenticationEntryPoint(entryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
         );
 
         http.addFilterBefore(
