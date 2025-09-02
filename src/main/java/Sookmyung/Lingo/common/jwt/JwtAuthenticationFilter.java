@@ -24,11 +24,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getRequestURI().equals("/member/reissue")) {
+        if (request.getRequestURI().equals("/member/reissue")
+                || request.getRequestURI().equals("/member/login")
+                || request.getRequestURI().equals("/member/signup")
+                || request.getRequestURI().equals("/member/check-email")
+                || request.getRequestURI().startsWith("/member/reset-password")
+                || request.getRequestURI().equals("/member/find-email")
+        ) {
             filterChain.doFilter(request, response);
             return;
         }
-        
+
         try {
             // 1. Request Header에서 JWT 토큰 추출
             String token = jwtTokenProvider.resolveToken(request);
