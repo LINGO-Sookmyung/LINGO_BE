@@ -98,7 +98,7 @@ public class MemberController {
     // 비밀번호 변경 - 현재 비밀번호 확인
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/change-password/check-current")
-    public CurrentPasswordResponse checkCurrentPassword(@AuthenticationPrincipal Member member, @Valid @RequestBody CurrentPasswordRequest request) {
+    public CurrentPasswordResponse checkCurrentPassword(@AuthenticationPrincipal(expression = "member") Member member, @Valid @RequestBody CurrentPasswordRequest request) {
         if (member == null) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
         }
@@ -109,7 +109,7 @@ public class MemberController {
     // 비밀번호 변경 - 새 비밀번호로 변경
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@AuthenticationPrincipal Member member, @Valid @RequestBody NewPasswordRequest request) {
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal(expression = "member") Member member, @Valid @RequestBody NewPasswordRequest request) {
         if (member == null) {
             throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
         }
