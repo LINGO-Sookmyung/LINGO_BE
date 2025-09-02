@@ -25,28 +25,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // Public API인 경우 필터링하지 않고 다음 필터로 넘어감
+        String token = jwtTokenProvider.resolveToken(request);
+
+        // 공개 API는 무조건 통과
         if (isPublicApi(request)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         try {
-            // 1. Request Header에서 JWT 토큰 추출
-            String token = jwtTokenProvider.resolveToken(request);
-
             if (token != null) {
+                // 만료된 토큰
                 if (!jwtTokenProvider.validateToken(token)) {
-                    // 유효하지 않은 토큰이 왔으면 → 그냥 인증 안 함 (예외 안 던지고)
-                    filterChain.doFilter(request, response);
-                    return;
+                    throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
                 }
 
+                // 로그아웃된 토큰
                 if (Boolean.TRUE.equals(redisTemplate.hasKey("blacklist:" + token))) {
-                    filterChain.doFilter(request, response);
-                    return;
+                    throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
                 }
 
+                // 유효한 토큰 → 인증 객체 등록
                 Authentication authentication = jwtTokenProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
