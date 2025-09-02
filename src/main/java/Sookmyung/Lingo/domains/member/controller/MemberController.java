@@ -53,6 +53,7 @@ public class MemberController {
 
 
     // 로그아웃
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String token = jwtTokenProvider.resolveToken(request);
