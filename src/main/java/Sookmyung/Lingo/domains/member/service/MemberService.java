@@ -275,18 +275,15 @@ public class MemberService {
     }
 
     // 비밀번호 변경 - 현재 비밀번호 확인
-    public boolean checkCurrentPassword(CurrentPasswordRequest request) {
-        Member member = authUtil.getCurrentMember();
+    public boolean checkCurrentPassword(Member member, CurrentPasswordRequest request) {
         if (!passwordEncoder.matches(request.getCurrentPassword(), member.getPassword())) {
-            return false; // 현재 비밀번호가 일치하지 않으면 false 반환
+            return false;
         }
         return true; // 현재 비밀번호가 일치하면 true 반환
     }
 
     // 비밀번호 변경 - 새 비밀번호로 변경
-    public void changePassword(NewPasswordRequest request) {
-        Member member = authUtil.getCurrentMember();
-
+    public void changePassword(Member member, NewPasswordRequest request) {
         // 새 비밀번호와 확인 비밀번호가 일치하는지 확인
         if (!request.getNewPassword().equals(request.getConfirmNewPassword())) {
             throw new CustomException(ErrorCode.NOT_MATCH_PASSWORD_CONFIRM);

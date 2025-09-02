@@ -1,7 +1,10 @@
 package Sookmyung.Lingo.domains.member.controller;
 
+import Sookmyung.Lingo.common.exception.CustomException;
+import Sookmyung.Lingo.common.exception.ErrorCode;
 import Sookmyung.Lingo.common.jwt.JwtTokenProvider;
 import Sookmyung.Lingo.common.jwt.ReissueRequest;
+import Sookmyung.Lingo.domains.member.domain.Member;
 import Sookmyung.Lingo.domains.member.dto.findEmail.FindEmailRequest;
 import Sookmyung.Lingo.domains.member.dto.findEmail.FindEmailResponse;
 import Sookmyung.Lingo.domains.member.dto.login.LoginRequest;
@@ -23,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -94,16 +98,22 @@ public class MemberController {
     // 비밀번호 변경 - 현재 비밀번호 확인
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/change-password/check-current")
-    public CurrentPasswordResponse checkCurrentPassword(@Valid @RequestBody CurrentPasswordRequest request) {
-        boolean isValid = memberService.checkCurrentPassword(request);
+    public CurrentPasswordResponse checkCurrentPassword(@AuthenticationPrincipal Member member, @Valid @RequestBody CurrentPasswordRequest request) {
+        if (member == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
+        }
+        boolean isValid = memberService.checkCurrentPassword(member, request);
         return new CurrentPasswordResponse(isValid);
     }
 
     // 비밀번호 변경 - 새 비밀번호로 변경
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword(@Valid @RequestBody NewPasswordRequest request) {
-        memberService.changePassword(request);
+    public ResponseEntity<?> changePassword(@AuthenticationPrincipal Member member, @Valid @RequestBody NewPasswordRequest request) {
+        if (member == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_TOKEN);
+        }
+        memberService.changePassword(member, request);
         return ResponseEntity.ok(new SimpleResponse("비밀번호가 변경되었습니다."));
     }
 
