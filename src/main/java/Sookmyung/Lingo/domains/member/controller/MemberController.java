@@ -22,6 +22,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -74,6 +75,7 @@ public class MemberController {
 
     // 비밀번호 찾기
     // 1. 비밀번호 찾기 요청
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/reset-password/send")
     public ResponseEntity<?> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         // 이메일로 인증 코드 전송
@@ -82,12 +84,14 @@ public class MemberController {
     }
 
     // 2. 인증코드 검증 및 재발급
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/reset-password/verify")
     public ResetPasswordResponse verifyCodeAndResetPassword(@Valid @RequestBody VerifyCodeRequest request) {
         return memberService.verifyCodeAndResetPassword(request);
     }
 
     // 비밀번호 변경 - 현재 비밀번호 확인
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/change-password/check-current")
     public CurrentPasswordResponse checkCurrentPassword(@Valid @RequestBody CurrentPasswordRequest request) {
         boolean isValid = memberService.checkCurrentPassword(request);
@@ -95,6 +99,7 @@ public class MemberController {
     }
 
     // 비밀번호 변경 - 새 비밀번호로 변경
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/change-password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody NewPasswordRequest request) {
         memberService.changePassword(request);
