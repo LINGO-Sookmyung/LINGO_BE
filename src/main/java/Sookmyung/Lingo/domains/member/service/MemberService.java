@@ -2,6 +2,7 @@ package Sookmyung.Lingo.domains.member.service;
 
 import Sookmyung.Lingo.common.exception.CustomException;
 import Sookmyung.Lingo.common.exception.ErrorCode;
+import Sookmyung.Lingo.common.jwt.CustomUserDetails;
 import Sookmyung.Lingo.common.jwt.JwtToken;
 import Sookmyung.Lingo.common.jwt.JwtTokenProvider;
 import Sookmyung.Lingo.common.util.AuthUtil;
@@ -112,8 +113,8 @@ public class MemberService {
         JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
 
         // UserDetails 객체에서 email 추출
-        User user = (User) authentication.getPrincipal();
-        String email = user.getUsername();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        String email = userDetails.getUsername();
 
         // Member 객체를 가져오기
         Member member = memberRepository.findByEmail(email)
